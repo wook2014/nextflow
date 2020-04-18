@@ -156,15 +156,15 @@ abstract class TaskHandler {
         record.submit = this.submitTimeMillis
         record.start = this.startTimeMillis
         record.process = task.processor.getName()
-        record.tag = task.config.getTag()
-        record.module = task.config.getModule()
+        record.tag = task.config.tag
+        record.module = task.config.module
         record.container = task.container
-        record.attempt = task.config.getAttempt()
+        record.attempt = task.config.attempt
 
         record.script = task.getScript()
         record.scratch = task.getScratch()
         record.workdir = task.getWorkDirStr()
-        record.queue = task.config.getQueue()
+        record.queue = task.config.queue
         record.cpus = task.config.getCpus()
         record.memory = task.config.getMemory()?.toBytes()
         record.disk = task.config.getDisk()?.toBytes()
