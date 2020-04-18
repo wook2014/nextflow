@@ -33,9 +33,9 @@ class ContainerHandler {
 
     final private static Path CWD = Paths.get('.').toAbsolutePath()
 
-    @PackageScope ContainerConfig config
+    private ContainerConfig config
 
-    @PackageScope Path baseDir
+    private Path baseDir
 
     ContainerHandler(Map containerConfig) {
         this(containerConfig, CWD)
@@ -45,6 +45,10 @@ class ContainerHandler {
         this.config = containerConfig as ContainerConfig
         this.baseDir = dir
     }
+
+    @PackageScope ContainerConfig getConfig() { config }
+    
+    @PackageScope Path getBaseDir() { baseDir }
 
     String normalizeImageName(String imageName) {
         final engine = config.getEngine()

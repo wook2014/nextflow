@@ -98,6 +98,10 @@ class K8sTaskHandler extends TaskHandler {
         executor.session.runName
     }
 
+    protected String getPodName() {
+        return podName
+    }
+
     protected K8sConfig getK8sConfig() { executor.getK8sConfig() }
 
     protected List<String> getContainerMounts() {

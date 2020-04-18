@@ -180,10 +180,11 @@ class ContainerHandlerTest extends Specification {
     @Unroll
     def 'test normalize method for singularity' () {
         given:
-        def handler = Spy(ContainerHandler,constructorArgs:[[engine: 'singularity', enabled: true]])
+        def config = [engine: 'singularity', enabled: true]
+        def baseDir = Paths.get('/abs/path/')
+        ContainerHandler handler = Spy(ContainerHandler,constructorArgs:[config, baseDir])
 
         when:
-        handler.baseDir = Paths.get('/abs/path/')
         def result = handler.normalizeImageName(IMAGE)
 
         then:
@@ -207,7 +208,7 @@ class ContainerHandlerTest extends Specification {
 
     def 'should not invoke caching when engine is disabled' () {
         given:
-        final handler = Spy(ContainerHandler,constructorArgs:[[engine: 'singularity']])
+        final ContainerHandler handler = Spy(ContainerHandler,constructorArgs:[[engine: 'singularity']])
         final IMAGE = 'docker://foo.img'
 
         when:

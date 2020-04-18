@@ -500,7 +500,7 @@ class TaskRun implements Cloneable {
     }
 
     def getScratch() {
-        config.scratch
+        config.get('scratch')
     }
 
     String getWorkDirStr() {
@@ -560,7 +560,7 @@ class TaskRun implements Cloneable {
 
     @Memoized
     Path getCondaEnv() {
-        if( !config.conda )
+        if( !config.get('conda') )
             return null
 
         final cfg = processor.session.config.conda as Map ?: Collections.emptyMap()

@@ -338,6 +338,22 @@ class TaskConfig extends LazyMap implements Cloneable {
         }
     }
 
+    String getStageInMode() {
+        get('stageInMode')
+    }
+
+    String getStageOutMode() {
+        get('stageOutMode')
+    }
+
+    String getBeforeScript() {
+        get('beforeScript')
+    }
+
+    String getAfterScript() {
+        get('afterScript')
+    }
+
     Integer getAttempt() {
         get('attempt') as Integer ?: 1
     }
@@ -352,6 +368,14 @@ class TaskConfig extends LazyMap implements Cloneable {
 
     PodOptions getPodOptions() {
         new PodOptions((List)get('pod'))
+    }
+
+    def getTag() {
+        get('tag')
+    }
+
+    def getQueue() {
+        get('queue')
     }
 
     AcceleratorResource getAccelerator() {
