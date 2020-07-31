@@ -19,7 +19,7 @@ dependencies {
     defaultCfg project(':nf-tower')
     defaultCfg project(':nf-amazon')
     // Capsule manages the fat jar building process
-    capsule 'io.nextflow:capsule:1.0.3.2'
+    capsule 'io.nextflow:capsule:1.1.0-SNAPSHOT'
     capsule 'io.nextflow:capsule-maven:1.0.3.2'
     console project(':nf-console')
     ga4gh   project(':nf-ga4gh')
