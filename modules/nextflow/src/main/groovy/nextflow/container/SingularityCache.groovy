@@ -122,10 +122,10 @@ class SingularityCache {
     @PackageScope
     Path getCacheDir() {
 
-        if( config.containsKey('pullTimeout') )
-            pullTimeout = config.get('pullTimeout') as Duration
+        if( config.pullTimeout )
+            pullTimeout = config.pullTimeout as Duration
 
-        def str = config.get('cacheDir') as String
+        def str = config.cacheDir as String
         if( str )
             return checkDir(str)
 

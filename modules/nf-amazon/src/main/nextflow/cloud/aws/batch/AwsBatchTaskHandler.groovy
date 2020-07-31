@@ -39,7 +39,6 @@ import com.amazonaws.services.batch.model.RetryStrategy
 import com.amazonaws.services.batch.model.SubmitJobRequest
 import com.amazonaws.services.batch.model.TerminateJobRequest
 import com.amazonaws.services.batch.model.Volume
-import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import nextflow.cloud.types.CloudMachineInfo
 import nextflow.container.ContainerNameValidator
@@ -127,7 +126,7 @@ class AwsBatchTaskHandler extends TaskHandler implements BatchHandler<String,Job
         this.traceFile = task.workDir.resolve(TaskRun.CMD_TRACE)
     }
 
-    @PackageScope String getJobId() { jobId }
+    protected String getJobId() { jobId }
 
     /**
      * @return An instance of {@link AwsOptions} holding Batch specific settings

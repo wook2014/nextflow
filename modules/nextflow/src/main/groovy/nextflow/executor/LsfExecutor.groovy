@@ -21,7 +21,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.regex.Pattern
 
-import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import nextflow.processor.TaskRun
 /**
@@ -53,10 +52,10 @@ class LsfExecutor extends AbstractGridExecutor {
 
     private String usageUnit = 'MB'
 
-    @PackageScope boolean getPerJobMemLimit() { perJobMemLimit }
-    @PackageScope boolean getPerTaskReserve() { perTaskReserve }
-    @PackageScope String getMemUnit() { memUnit }
-    @PackageScope String getUsageUnit() { usageUnit }
+    protected boolean getPerJobMemLimit() { perJobMemLimit }
+    protected boolean getPerTaskReserve() { perTaskReserve }
+    protected String getMemUnit() { memUnit }
+    protected String getUsageUnit() { usageUnit }
     
     /**
      * Gets the directives to submit the specified task to the cluster for execution

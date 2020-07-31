@@ -46,9 +46,9 @@ class ContainerHandler {
         this.baseDir = dir
     }
 
-    @PackageScope ContainerConfig getConfig() { config }
+    ContainerConfig getConfig() { config }
     
-    @PackageScope Path getBaseDir() { baseDir }
+    Path getBaseDir() { baseDir }
 
     String normalizeImageName(String imageName) {
         final engine = config.getEngine()
