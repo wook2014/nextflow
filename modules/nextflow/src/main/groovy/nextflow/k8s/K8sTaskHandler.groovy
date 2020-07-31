@@ -216,7 +216,7 @@ class K8sTaskHandler extends TaskHandler {
         result.runName = getRunName()
         result.taskName = task.getName()
         result.processName = task.getProcessor().getName()
-        result.sessionId = "uuid-${executor.getSession().uniqueId}"
+        result.sessionId = "uuid-${executor.getSession().uniqueId}" as String
         return result
     }
 
