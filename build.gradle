@@ -136,7 +136,6 @@ allprojects {
                     '--add-opens=java.base/sun.net.www.protocol.ftp=ALL-UNNAMED',
                     '--add-opens=java.base/sun.net.www.protocol.file=ALL-UNNAMED',
                     '--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
-                    '--add-modules=java.xml.bind,java.activation',
             ])
         }
     }
