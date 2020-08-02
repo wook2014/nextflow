@@ -16,7 +16,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8','11','12']
+        #java_version: ['8.0.222','10.0.2','11.0.4']
+        java_version: [8, 11, 14]
 
     steps:
     - name: Environment
