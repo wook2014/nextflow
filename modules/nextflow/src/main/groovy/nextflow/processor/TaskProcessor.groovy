@@ -1925,11 +1925,11 @@ class TaskProcessor {
 
         List keys = [ session.uniqueId, name, task.source ]
 
-        if( task.containerEnabled )
+        if( task.isContainerEnabled() )
             keys << task.container
 
         // add all the input name-value pairs to the key generator
-        task.inputs.each {
+        for( Map.Entry<InParam,Object> it : task.inputs ) {
             keys.add( it.key.name )
             keys.add( it.value )
         }
