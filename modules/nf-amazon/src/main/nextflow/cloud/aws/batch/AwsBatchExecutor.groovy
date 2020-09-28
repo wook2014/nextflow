@@ -40,6 +40,7 @@ import nextflow.util.Duration
 import nextflow.util.RateUnit
 import nextflow.util.ServiceName
 import nextflow.util.ThrottlingExecutor
+import org.pf4j.ExtensionPoint
 /**
  * AWS Batch executor
  * https://aws.amazon.com/batch/
@@ -49,7 +50,7 @@ import nextflow.util.ThrottlingExecutor
 @Slf4j
 @ServiceName('awsbatch')
 @CompileStatic
-class AwsBatchExecutor extends Executor {
+class AwsBatchExecutor extends Executor implements ExtensionPoint {
 
     /**
      * Proxy to throttle AWS batch client requests

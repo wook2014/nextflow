@@ -27,6 +27,8 @@ import nextflow.script.ProcessConfig
 import nextflow.script.ScriptType
 import nextflow.util.ServiceDiscover
 import nextflow.util.ServiceName
+import org.pf4j.PluginManager
+
 /**
  * Helper class to create {@link Executor} objects
  *
@@ -67,11 +69,22 @@ class ExecutorFactory {
     @PackageScope Map<Class<? extends Executor>,? extends Executor> getExecutors() { executors }
 
     ExecutorFactory() {
+        init0(ServiceDiscover.load(Executor))
+    }
+
+    ExecutorFactory(PluginManager manager) {
+        final providers = manager.getExtensions(ExecutorProvider)
+        log.debug "Executor providers=$providers"
+        final executors = providers.collect { it.executorType() }
+        init0( executors )
+    }
+
+    private void init0(List<Class<? extends Executor>> executorClasses) {
         executorsMap = new HashMap(20)
         // add built-in executors
         executorsMap.putAll(BUILT_IN_EXECUTORS)
         // discover non-core executors
-        for( Class<Executor> clazz : ServiceDiscover.load(Executor) ) {
+        for( Class<Executor> clazz : executorClasses ) {
             log.trace "Discovered executor class: ${clazz.toString()}"
             final name = findNameByClass(clazz)
             final current = executorsMap.get(name)

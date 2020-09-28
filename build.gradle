@@ -225,6 +225,10 @@ task exportClasspath {
 }
 
 
+// plugin location
+ext.deployMode = 'prod' //'dev'
+ext.pluginsDir = ext.deployMode=='prod' ? "$rootProject.buildDir.path/plugins" : "${rootDir}/plugins"
+
 ext.nexusUsername = project.findProperty('nexusUsername')
 ext.nexusPassword = project.findProperty('nexusPassword')
 ext.nexusFullName = project.findProperty('nexusFullName')

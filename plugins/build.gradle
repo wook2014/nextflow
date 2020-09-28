@@ -1,0 +1,40 @@
+apply plugin: 'java'
+
+jar.enabled = false
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+
+    task plugin(type: Jar) {
+        into('classes') {
+            with jar
+        }
+        into('lib') {
+            from configurations.compile
+        }
+        archiveExtension ='zip'
+    }
+
+    task assemblePlugin(type: Copy) {
+        from plugin
+        into pluginsDir
+    }
+
+    task targetLibs(type: Copy) {
+        from configurations.compile
+        into 'build/target/libs'
+    }
+}
+
+task assemblePlugins(type: Copy) {
+    dependsOn subprojects.assemblePlugin, subprojects.targetLibs
+}
+
+assemble.dependsOn project.tasks.assemblePlugins

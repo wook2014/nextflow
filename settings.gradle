@@ -29,3 +29,7 @@ include 'nf-tower'
 rootProject.children.each { prj ->
     prj.projectDir = new File("$rootDir/modules/$prj.name")
 }
+
+include 'plugins'
+include 'plugins:nf-alibaba'
+

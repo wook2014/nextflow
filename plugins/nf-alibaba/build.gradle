@@ -16,6 +16,8 @@
  */
 apply plugin: 'groovy'
 
+version = '0.1.0'
+
 sourceSets {
     main.java.srcDirs = []
     main.groovy.srcDirs = ['src/main']
@@ -26,18 +28,23 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':nextflow')
-    compile('io.nextflow:nxf-s3fs:1.0.8') {
+    compileOnly project(':nextflow')
+    compileOnly 'org.slf4j:slf4j-api:1.7.10'
+    compileOnly "org.codehaus.groovy:groovy:3.0.5"
+    compileOnly "org.codehaus.groovy:groovy-nio:3.0.5"
+    compileOnly 'org.pf4j:pf4j:3.4.1'
+
+    compile 'com.aliyun:aliyun-java-sdk-batchcompute:5.2.0'
+    compile 'com.aliyun:aliyun-java-sdk-core:3.2.3'
+
+    // AWS s3 library is needed to access Alibaba OSS (object storage service)
+    compile('io.nextflow:nxf-s3fs:1.0.9-SNAPSHOT') {
         exclude group: 'org.apache.tika', module: 'tika-core'
         exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
     }
     compile ('com.amazonaws:aws-java-sdk-s3:1.11.542')
-    compile ('com.amazonaws:aws-java-sdk-ec2:1.11.542')
-    compile ('com.amazonaws:aws-java-sdk-batch:1.11.542')
-    compile ('com.amazonaws:aws-java-sdk-iam:1.11.542')
-    compile ('com.amazonaws:aws-java-sdk-ecs:1.11.542')
-    compileOnly 'org.pf4j:pf4j:3.4.1'
-    annotationProcessor('org.pf4j:pf4j:3.4.1')
 
-    testCompile(testFixtures(project(":nextflow")))
+    /* testCompile inherited from top gradle build file */
 }
+

@@ -32,6 +32,8 @@ import nextflow.processor.TaskRun
 import nextflow.script.ScriptType
 import nextflow.util.Duration
 import nextflow.util.ServiceName
+import org.pf4j.ExtensionPoint
+
 /**
  * Google Pipelines Executor.
  *
@@ -43,7 +45,7 @@ import nextflow.util.ServiceName
 @CompileStatic
 @ServiceName('google-lifesciences')
 @SupportedScriptTypes(ScriptType.SCRIPTLET)
-class GoogleLifeSciencesExecutor extends Executor {
+class GoogleLifeSciencesExecutor extends Executor implements ExtensionPoint {
 
     private GoogleLifeSciencesConfig config
 
