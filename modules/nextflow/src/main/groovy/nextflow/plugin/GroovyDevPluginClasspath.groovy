@@ -16,7 +16,7 @@ class GroovyDevPluginClasspath extends PluginClasspath {
     GroovyDevPluginClasspath() {
         // the path where classes are resources should be found in the dev environment
         // for each plugin project directory
-        addClassesDirectories("build/classes/groovy/main", "build/resources/main")
+        addClassesDirectories("build/classes/groovy/main", "build/resources/main", 'build/classes/main')
 
         // the path where the plugin dependencies jar files are expected to be found
         // note: this path is not created automatically by Gradle, it should be created by a custom task

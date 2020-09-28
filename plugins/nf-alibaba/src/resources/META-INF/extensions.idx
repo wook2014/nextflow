@@ -1,2 +1,2 @@
 # List here all plugin classes
-nextflow.cloud.alibaba.AliBatchProvider
+nextflow.cloud.alibaba.batch.AliBatchExecutor

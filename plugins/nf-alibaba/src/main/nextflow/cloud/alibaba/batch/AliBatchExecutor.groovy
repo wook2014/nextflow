@@ -15,7 +15,7 @@ import nextflow.processor.TaskPollingMonitor
 import nextflow.processor.TaskRun
 import nextflow.util.Duration
 import nextflow.util.ServiceName
-
+import org.pf4j.ExtensionPoint
 /**
  * Alibaba Batch executor
  *
@@ -27,7 +27,7 @@ import nextflow.util.ServiceName
  */
 @ServiceName('alibatch')
 @CompileStatic
-class AliBatchExecutor extends Executor {
+class AliBatchExecutor extends Executor implements ExtensionPoint {
 
     private BatchComputeClient client
     private AliOptions opts

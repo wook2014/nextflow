@@ -37,7 +37,6 @@ dependencies {
     compile ('com.amazonaws:aws-java-sdk-iam:1.11.542')
     compile ('com.amazonaws:aws-java-sdk-ecs:1.11.542')
     compileOnly 'org.pf4j:pf4j:3.4.1'
-    annotationProcessor('org.pf4j:pf4j:3.4.1')
 
     testCompile(testFixtures(project(":nextflow")))
 }

@@ -73,10 +73,9 @@ class ExecutorFactory {
     }
 
     ExecutorFactory(PluginManager manager) {
-        final providers = manager.getExtensions(ExecutorProvider)
-        log.debug "Executor providers=$providers"
-        final executors = providers.collect { it.executorType() }
-        init0( executors )
+        final executors = manager.getExtensionClasses(Executor)
+        log.debug "Extension executors providers=$executors"
+        init0(executors)
     }
 
     private void init0(List<Class<? extends Executor>> executorClasses) {
