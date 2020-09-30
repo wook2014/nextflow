@@ -253,8 +253,7 @@ class CmdRun extends CmdBase implements HubOptions {
                         .setBaseDir(scriptFile.parent)
 
         // -- load plugins
-        Plugins.loadPlugins()
-        Plugins.startPlugins()
+        Plugins.setup()
 
         // -- create a new runner instance
         final runner = new ScriptRunner(config)

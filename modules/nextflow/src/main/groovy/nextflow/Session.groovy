@@ -613,8 +613,8 @@ class Session implements ISession {
             // -- close db
             cache?.close()
 
-            // -- shutdown s3 uploader
-            Plugins.stopPlugins()
+            // -- shutdown plugins
+            Plugins.stop()
 
             // -- cleanup script classes dir
             classesDir.deleteDir()

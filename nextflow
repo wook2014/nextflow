@@ -263,6 +263,9 @@ CAPSULE_LOG=${CAPSULE_LOG:=''}
 CAPSULE_RESET=${CAPSULE_RESET:=''}
 CAPSULE_CACHE_DIR=${CAPSULE_CACHE_DIR:="$NXF_HOME/capsule"}
 
+NXF_PLUGINS_DIR=${NXF_PLUGINS_DIR:-$NXF_HOME/plugins}
+NXF_PLUGINS_MODE=${NXF_PLUGINS_MODE:-prod}
+
 NXF_PACK=one
 NXF_MODE=${NXF_MODE:-''}
 NXF_JAR=${NXF_JAR:-nextflow-$NXF_VER-$NXF_PACK.jar}
@@ -388,9 +391,10 @@ fi
 [[ "$NXF_TEMP" ]] && JAVA_OPTS+=(-Djava.io.tmpdir="$NXF_TEMP")
 [[ "${jvmopts[@]}" ]] && JAVA_OPTS+=("${jvmopts[@]}")
 # use drip to speedup startup time -- https://github.com/ninjudd/drip
-[[ "$NXF_DRIP" ]] && export DRIP_INIT='' && export DRIP_INIT_CLASS='nextflow.cli.DripMain'
 export JAVA_CMD
 export CAPSULE_CACHE_DIR
+export NXF_PLUGINS_DIR
+export NXF_PLUGINS_MODE
 
 # lookup the a `md5` command
 if hash md5sum 2>/dev/null; then MD5=md5sum;
@@ -417,7 +421,8 @@ $NXF_VER
 $NXF_OPTS
 $NXF_GRAB
 $NXF_CLASSPATH
-$NXF_DRIP
+$NXF_PLUGINS_DIR
+$NXF_PLUGINS_MODE
 EOF
 }
 

@@ -16,15 +16,13 @@ dependencies {
     defaultCfg "org.apache.ivy:ivy:2.3.0"
     // default cfg = runtime + httpfs + amazon + tower client
     defaultCfg project(':nf-httpfs')
-    defaultCfg project(':nf-tower')
-    defaultCfg project(':nf-amazon')
     // Capsule manages the fat jar building process
     capsule 'io.nextflow:capsule:1.1.0'
     capsule 'io.nextflow:capsule-maven:1.0.3.2'
-    console project(':nf-console')
-    ga4gh   project(':nf-ga4gh')
-    google  project(':nf-google')
-    amazon  project(':nf-amazon')
+    console project(':plugins:nf-console')
+    ga4gh   project(':plugins:nf-ga4gh')
+    google  project(':plugins:nf-google')
+    amazon  project(':plugins:nf-amazon')
     // ignite module
     ignite 'io.nextflow:nf-ignite:1.1.0'
     // legacy cloud support

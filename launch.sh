@@ -73,23 +73,19 @@ if [[ ! $JAVA_VER =~ $version_check ]]; then
     exit 1
 fi
 JVM_ARGS+=" -Dfile.encoding=UTF-8 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 "
-JVM_ARGS+=" -Dpf4j.pluginsDir=$base_dir/plugins -Dpf4j.mode=dev "
 [[ $JAVA_VER =~ ^(9|10|11|12|13|14) ]] && JVM_ARGS+=" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED --add-opens=java.base/sun.net.www.protocol.http=ALL-UNNAMED --add-opens=java.base/sun.net.www.protocol.https=ALL-UNNAMED --add-opens=java.base/sun.net.www.protocol.ftp=ALL-UNNAMED --add-opens=java.base/sun.net.www.protocol.file=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --illegal-access=deny"
 
 ## flight recorded -- http://docs.oracle.com/javacomponents/jmc-5-4/jfr-runtime-guide/run.htm
 ##JVM_ARGS+=" -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=60s,filename=myrecording.jfr"
+NXF_PLUGINS_DIR=${NXF_PLUGINS_DIR:-$base_dir/plugins}
+NXF_PLUGINS_MODE=${NXF_PLUGINS_MODE:-dev}
 NXF_HOME=${NXF_HOME:-$HOME/.nextflow}
 NXF_OPTS=${NXF_OPTS:-}
-EXTRAE_CONFIG_FILE=${EXTRAE_CONFIG_FILE:-$NXF_HOME/extrae/config}
 NXF_CLI="$0 $@"
 export NXF_CLI
 export COLUMNS
-export EXTRAE_CONFIG_FILE
-
-DRIP_INIT_CLASS=nextflow.cli.DripMain
-DRIP_INIT=''
-
-EXTRAE_CONFIG_FILE=${EXTRAE_CONFIG_FILE:-$NXF_HOME/extrae/config}
+export NXF_PLUGINS_DIR
+export NXF_PLUGINS_MODE
 
 #
 # classpath when the application is compiled with gradle

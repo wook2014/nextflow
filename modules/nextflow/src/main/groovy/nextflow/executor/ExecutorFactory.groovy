@@ -25,10 +25,8 @@ import nextflow.k8s.K8sExecutor
 import nextflow.script.BodyDef
 import nextflow.script.ProcessConfig
 import nextflow.script.ScriptType
-import nextflow.util.ServiceDiscover
 import nextflow.util.ServiceName
 import org.pf4j.PluginManager
-
 /**
  * Helper class to create {@link Executor} objects
  *
@@ -69,13 +67,19 @@ class ExecutorFactory {
     @PackageScope Map<Class<? extends Executor>,? extends Executor> getExecutors() { executors }
 
     ExecutorFactory() {
-        init0(ServiceDiscover.load(Executor))
+        init0(Collections.<Class<Executor>>emptyList())
     }
 
     ExecutorFactory(PluginManager manager) {
-        final executors = manager.getExtensionClasses(Executor)
-        log.debug "Extension executors providers=$executors"
-        init0(executors)
+        if( manager!=null ) {
+            final executors = manager.getExtensionClasses(Executor)
+            log.debug "Extension executors providers=${executors.simpleName}"
+            init0(executors)
+        }
+        else {
+            log.warn "Plugin manager not initialised -- Using built-in executors"
+            init0(Collections.<Class<Executor>>emptyList())
+        }
     }
 
     private void init0(List<Class<? extends Executor>> executorClasses) {

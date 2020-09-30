@@ -13,40 +13,43 @@ import org.pf4j.PluginManager
 class Plugins {
 
     private static PluginManager manager
+    private static String mode
+    private static String dir
 
     static {
         // check mode -- either `dev` or `prod`
-        final mode = System.getenv('NXF_PLUGINS_MODE') ?: 'prod'
+        mode = System.getenv('NXF_PLUGINS_MODE') ?: 'prod'
         if( mode )
             System.setProperty('pf4j.mode', mode)
         // check directory
-        final dir = System.getenv('NXF_PLUGINS_DIR') ?: 'plugins'
+        dir = System.getenv('NXF_PLUGINS_DIR') ?: 'plugins'
         if( dir )
             System.setProperty('pf4j.pluginsDir', dir)
-        // log
-        log.debug "Setting up plugin manager > NXF_PLUGINS_MODE=${mode}; NXF_PLUGINS_DIR=$dir"
     }
 
-    static PluginManager getManager() { manager}
+    static PluginManager getManager() { manager }
 
-    static synchronized void loadPlugins() {
-        if( !manager )
-            manager = new NextflowPluginManager()
-        manager.loadPlugins()
-    }
-
-    static void startPlugins() {
-        assert manager, "Plugins not loaded"
-        manager.startPlugins()
-    }
-
-    static void stopPlugins() {
+    static synchronized void setup() {
         if( manager )
+            throw new IllegalArgumentException("Plugin system was already setup")
+        else {
+            log.debug "Setting up plugin manager > NXF_PLUGINS_MODE=${mode}; NXF_PLUGINS_DIR=$dir"
+            manager = new NextflowPluginManager()
+            manager.loadPlugins()
+            manager.startPlugins()
+        }
+    }
+
+    static synchronized  void stop() {
+        if( manager ) {
             manager.stopPlugins()
+            manager = null
+        }
     }
 
     static <T> List<T> getExtensions(Class<T> type) {
-        assert manager, "Plugins not loaded"
+        if( !manager )
+            setup()
         manager.getExtensions(type)
     }
 }
