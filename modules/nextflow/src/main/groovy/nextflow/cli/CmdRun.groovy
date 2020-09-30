@@ -33,6 +33,7 @@ import nextflow.NextflowMeta
 import nextflow.config.ConfigBuilder
 import nextflow.exception.AbortOperationException
 import nextflow.file.FileHelper
+import nextflow.plugin.NextflowPlugins
 import nextflow.scm.AssetManager
 import nextflow.script.ScriptFile
 import nextflow.script.ScriptRunner
@@ -258,6 +259,10 @@ class CmdRun extends CmdBase implements HubOptions {
         runner.session.commandLine = launcher.cliString
         runner.session.ansiLog = launcher.options.ansiLog
         runner.session.resolvedConfig = resolveConfig(scriptFile.parent)
+
+        // -- load plugins
+        NextflowPlugins.instance.loadPlugins()
+        NextflowPlugins.instance.startPlugins()
 
         if( this.test ) {
             runner.test(this.test, scriptArgs)

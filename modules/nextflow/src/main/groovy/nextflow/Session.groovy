@@ -17,6 +17,9 @@
 
 package nextflow
 
+import static nextflow.Const.*
+import static nextflow.util.SpuriousDeps.*
+
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -46,7 +49,7 @@ import nextflow.executor.ExecutorFactory
 import nextflow.extension.CH
 import nextflow.file.FileHelper
 import nextflow.file.FilePorter
-import nextflow.plugin.NextflowPluginManager
+import nextflow.plugin.NextflowPlugins
 import nextflow.processor.ErrorStrategy
 import nextflow.processor.TaskFault
 import nextflow.processor.TaskHandler
@@ -71,11 +74,8 @@ import nextflow.util.Duration
 import nextflow.util.HistoryFile
 import nextflow.util.NameGenerator
 import nextflow.util.VersionNumber
-import org.pf4j.PluginManager
 import sun.misc.Signal
 import sun.misc.SignalHandler
-import static nextflow.Const.APP_VER
-import static nextflow.util.SpuriousDeps.shutdownS3Uploader
 /**
  * Holds the information on the current execution
  *
@@ -239,8 +239,6 @@ class Session implements ISession {
 
     AnsiLogObserver ansiLogObserver
 
-    PluginManager pluginManager
-
     FilePorter getFilePorter() { filePorter }
 
     /**
@@ -339,8 +337,6 @@ class Session implements ISession {
      */
     Session init( ScriptFile scriptFile, List<String> args=null ) {
 
-        pluginManager = setupPluginManager()
-
         if(!workDir.mkdirs()) throw new AbortOperationException("Cannot create work-dir: $workDir -- Make sure you have write permissions or specify a different directory by using the `-w` command line option")
         log.debug "Work-dir: ${workDir.toUriString()} [${FileHelper.getPathFsType(workDir)}]"
 
@@ -358,7 +354,7 @@ class Session implements ISession {
 
         // set the byte-code target directory
         this.classesDir = FileHelper.createLocalDir()
-        this.executorFactory = new ExecutorFactory(pluginManager)
+        this.executorFactory = new ExecutorFactory(NextflowPlugins.instance)
         this.observers = createObservers()
         this.statsEnabled = observers.any { it.enableMetrics() }
         this.workflowMetadata = new WorkflowMetadata(this, scriptFile)
@@ -370,16 +366,6 @@ class Session implements ISession {
         cache = new CacheDB(uniqueId,runName).open()
 
         return this
-    }
-
-    private PluginManager setupPluginManager() {
-        final mode = System.getProperty('pf4j.mode')
-        final dir = System.getProperty('pf4j.pluginsDir')
-        log.debug "Creating plugin manager > pf4j.mode=${mode}; pf4j.pluginsDir=$dir"
-        final manager = new NextflowPluginManager()
-        manager.loadPlugins()
-        manager.startPlugins()
-        return manager
     }
 
     Session setBinding(ScriptBinding binding ) {
@@ -406,7 +392,7 @@ class Session implements ISession {
         statsObserver = new WorkflowStatsObserver(this)
         result.add(statsObserver)
 
-        for( TraceObserverFactory f : ServiceLoader.load(TraceObserverFactory) ) {
+        for( TraceObserverFactory f : NextflowPlugins.instance.getExtensions(TraceObserverFactory) ) {
             log.debug "Observer factory: ${f.class.simpleName}"
             result.addAll(f.create(this))
         }

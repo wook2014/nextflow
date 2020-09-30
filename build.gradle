@@ -195,7 +195,7 @@ task compile {
 
 def getRuntimeConfigs() {
     def names = subprojects
-            .findAll { prj -> prj.name!='capsule-loader' }
+            .findAll { prj -> prj.name in ['nextflow','nf-commons','nf-https'] }
             .collect { it.name }
 
     FileCollection result = null
@@ -245,7 +245,7 @@ ext.deployable << project(':nf-httpfs')
 ext.deployable << project(':nf-ga4gh')
 //ext.deployable << project(':nf-google')
 ext.deployable << project(':nf-amazon')
-ext.deployable << project(':nf-tower')
+//ext.deployable << project(':nf-tower')
 
 /*
  * Maven central deployment
