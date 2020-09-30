@@ -29,6 +29,8 @@ import nextflow.processor.TaskPollingMonitor
 import nextflow.processor.TaskRun
 import nextflow.util.Duration
 import nextflow.util.ServiceName
+import org.pf4j.ExtensionPoint
+
 /**
  * Experimental TES executor
  *
@@ -39,7 +41,7 @@ import nextflow.util.ServiceName
 @Slf4j
 @CompileStatic
 @ServiceName('tes')
-class TesExecutor extends Executor {
+class TesExecutor extends Executor implements ExtensionPoint {
 
     private TaskServiceApi client
 

@@ -33,4 +33,5 @@ include 'plugins'
 include 'plugins:nf-alibaba'
 include 'plugins:nf-google'
 include 'plugins:nf-tower'
+include 'plugins:nf-ga4gh'
 
