@@ -27,7 +27,7 @@ subprojects {
         into pluginsDir
     }
 
-    task targetLibs(type: Copy) {
+    task targetLibs(type: Sync) {
         from configurations.compile
         into 'build/target/libs'
     }

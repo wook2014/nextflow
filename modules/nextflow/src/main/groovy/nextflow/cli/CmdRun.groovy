@@ -252,6 +252,10 @@ class CmdRun extends CmdBase implements HubOptions {
                         .setCmdRun(this)
                         .setBaseDir(scriptFile.parent)
 
+        // -- load plugins
+        NextflowPlugins.instance.loadPlugins()
+        NextflowPlugins.instance.startPlugins()
+
         // -- create a new runner instance
         final runner = new ScriptRunner(config)
         runner.setScript(scriptFile)
@@ -259,10 +263,6 @@ class CmdRun extends CmdBase implements HubOptions {
         runner.session.commandLine = launcher.cliString
         runner.session.ansiLog = launcher.options.ansiLog
         runner.session.resolvedConfig = resolveConfig(scriptFile.parent)
-
-        // -- load plugins
-        NextflowPlugins.instance.loadPlugins()
-        NextflowPlugins.instance.startPlugins()
 
         if( this.test ) {
             runner.test(this.test, scriptArgs)
