@@ -33,7 +33,7 @@ import nextflow.NextflowMeta
 import nextflow.config.ConfigBuilder
 import nextflow.exception.AbortOperationException
 import nextflow.file.FileHelper
-import nextflow.plugin.NextflowPlugins
+import nextflow.plugin.Plugins
 import nextflow.scm.AssetManager
 import nextflow.script.ScriptFile
 import nextflow.script.ScriptRunner
@@ -253,8 +253,8 @@ class CmdRun extends CmdBase implements HubOptions {
                         .setBaseDir(scriptFile.parent)
 
         // -- load plugins
-        NextflowPlugins.instance.loadPlugins()
-        NextflowPlugins.instance.startPlugins()
+        Plugins.loadPlugins()
+        Plugins.startPlugins()
 
         // -- create a new runner instance
         final runner = new ScriptRunner(config)

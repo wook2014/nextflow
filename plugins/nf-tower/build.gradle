@@ -23,6 +23,10 @@ sourceSets {
     test.resources.srcDirs = []
 }
 
+configurations {
+    // see https://docs.gradle.org/4.1/userguide/dependency_management.html#sub:exclude_transitive_dependencies
+    runtimeClasspath.exclude group: 'org.slf4j', module: 'slf4j-api'
+}
 
 dependencies {
     compileOnly project(':nextflow')

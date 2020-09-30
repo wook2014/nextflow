@@ -32,7 +32,7 @@ import de.javakaffee.kryoserializers.UnmodifiableCollectionsSerializer
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import nextflow.file.FileHelper
-import nextflow.plugin.NextflowPlugins
+import nextflow.plugin.Plugins
 import org.codehaus.groovy.runtime.GStringImpl
 import org.objenesis.instantiator.ObjectInstantiator
 import org.pf4j.Extension
@@ -50,7 +50,7 @@ class KryoHelper {
     static {
         serializers = [:]
 
-        for( SerializerRegistrant s : NextflowPlugins.instance.getExtensions(SerializerRegistrant).iterator() ) {
+        for( SerializerRegistrant s : Plugins.getExtensions(SerializerRegistrant).iterator() ) {
             log.trace "Registering serializer: ${s.class.name}"
             s.register(serializers)
         }

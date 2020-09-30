@@ -21,7 +21,7 @@ import java.nio.file.Path
 
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
-import nextflow.plugin.NextflowPlugins
+import nextflow.plugin.Plugins
 import org.pf4j.ExtensionPoint
 
 /**
@@ -76,7 +76,7 @@ abstract class FileSystemPathFactory implements ExtensionPoint {
     @Memoized
     private static List<FileSystemPathFactory> factories0() {
         final result = new ArrayList(10)
-        final itr = NextflowPlugins.instance.getExtensions(FileSystemPathFactory).iterator()
+        final itr = Plugins.getExtensions(FileSystemPathFactory).iterator()
         while( itr.hasNext() )
             result.add(itr.next())
         return result

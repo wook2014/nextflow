@@ -5,7 +5,8 @@ import org.pf4j.Plugin
 import org.pf4j.PluginWrapper
 
 /**
- *
+ * Nextflow plugin for Console extension
+ * 
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
