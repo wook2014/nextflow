@@ -242,9 +242,9 @@ ext.deployable << project(':nextflow')
 ext.deployable << project(':nf-commons')
 ext.deployable << project(':nf-console')
 ext.deployable << project(':nf-httpfs')
-ext.deployable << project(':nf-ga4gh')
+//ext.deployable << project(':nf-ga4gh')
 //ext.deployable << project(':nf-google')
-ext.deployable << project(':nf-amazon')
+//ext.deployable << project(':nf-amazon')
 //ext.deployable << project(':nf-tower')
 
 /*

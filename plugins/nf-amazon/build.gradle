@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+apply plugin: 'java'
+apply plugin: 'java-test-fixtures'
+apply plugin: 'idea'
 apply plugin: 'groovy'
 
 sourceSets {
@@ -26,7 +29,10 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':nextflow')
+    compileOnly project(':nextflow')
+    compileOnly 'org.slf4j:slf4j-api:1.7.10'
+    compileOnly 'org.pf4j:pf4j:3.4.1'
+
     compile('io.nextflow:nxf-s3fs:1.0.8') {
         exclude group: 'org.apache.tika', module: 'tika-core'
         exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
@@ -39,4 +45,7 @@ dependencies {
     compileOnly 'org.pf4j:pf4j:3.4.1'
 
     testCompile(testFixtures(project(":nextflow")))
+    testImplementation project(':nextflow')
+    testImplementation "org.codehaus.groovy:groovy:3.0.5"
+    testImplementation "org.codehaus.groovy:groovy-nio:3.0.5"
 }

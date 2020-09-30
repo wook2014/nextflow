@@ -21,17 +21,15 @@ include 'nextflow'
 include 'nf-commons'
 include 'nf-console'
 include 'nf-httpfs'
-include 'nf-ga4gh'
-include 'nf-amazon'
-include 'nf-tower'
 
 rootProject.children.each { prj ->
     prj.projectDir = new File("$rootDir/modules/$prj.name")
 }
 
 include 'plugins'
-include 'plugins:nf-alibaba'
+include 'plugins:nf-amazon'
 include 'plugins:nf-google'
-include 'plugins:nf-tower'
+include 'plugins:nf-alibaba'
 include 'plugins:nf-ga4gh'
+include 'plugins:nf-tower'
 
