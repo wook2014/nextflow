@@ -23,7 +23,6 @@ include 'nf-console'
 include 'nf-httpfs'
 include 'nf-ga4gh'
 include 'nf-amazon'
-include 'nf-google'
 include 'nf-tower'
 
 rootProject.children.each { prj ->
@@ -32,4 +31,5 @@ rootProject.children.each { prj ->
 
 include 'plugins'
 include 'plugins:nf-alibaba'
+include 'plugins:nf-google'
 

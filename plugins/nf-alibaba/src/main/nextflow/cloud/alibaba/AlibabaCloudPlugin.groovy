@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
-public class AlibabaCloudPlugin extends Plugin {
+class AlibabaCloudPlugin extends Plugin {
 
     private static final Logger log = LoggerFactory.getLogger(AlibabaCloudPlugin.class);
 
@@ -21,17 +21,17 @@ public class AlibabaCloudPlugin extends Plugin {
      * Your plugins have to provide constructor with this exact signature to
      * be successfully loaded by manager.
      */
-    public AlibabaCloudPlugin(PluginWrapper wrapper) {
+    AlibabaCloudPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
-    public void start() {
+    void start() {
         log.debug("Starting Alibaba Cloud plugin");
     }
 
     @Override
-    public void stop() {
+    void stop() {
         log.debug("Stopping Alibaba Cloud plugin");
     }
 }
