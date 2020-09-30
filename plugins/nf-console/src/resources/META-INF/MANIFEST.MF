@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Plugin-Class: nextflow.ui.console.ConsolePlugin
+Plugin-Id: nf-console
+Plugin-Provider: Seqera Labs
+Plugin-Version: 0.1.0
