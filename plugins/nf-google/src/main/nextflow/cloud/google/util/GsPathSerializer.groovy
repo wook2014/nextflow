@@ -27,6 +27,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import nextflow.file.FileHelper
 import nextflow.util.SerializerRegistrant
+import org.pf4j.Extension
 
 /**
  * Serializer for a {@link CloudStoragePath}
@@ -34,6 +35,7 @@ import nextflow.util.SerializerRegistrant
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Slf4j
+@Extension
 @CompileStatic
 class GsPathSerializer extends Serializer<CloudStoragePath> implements SerializerRegistrant {
 

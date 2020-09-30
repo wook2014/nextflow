@@ -16,3 +16,4 @@
 #
 
 nextflow.trace.DefaultObserverFactory
+nextflow.util.DefaultSerializers

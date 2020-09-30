@@ -16,3 +16,4 @@
 #
 
 nextflow.cloud.aws.batch.AwsBatchExecutor
+nextflow.cloud.aws.util.S3PathSerializer

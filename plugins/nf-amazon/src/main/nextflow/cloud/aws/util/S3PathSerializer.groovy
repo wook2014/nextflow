@@ -21,12 +21,14 @@ import com.upplication.s3fs.S3Path
 import groovy.transform.CompileStatic
 import nextflow.util.PathSerializer
 import nextflow.util.SerializerRegistrant
+import org.pf4j.Extension
 
 /**
  * Register the S3Path serializer
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Extension
 @CompileStatic
 class S3PathSerializer implements SerializerRegistrant  {
     @Override
