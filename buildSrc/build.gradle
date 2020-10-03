@@ -1,0 +1,22 @@
+plugins {
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    compile ('com.amazonaws:aws-java-sdk-s3:1.11.542')
+}
+
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'io.nextflow.s3'
+            implementationClass = 'S3Plugin'
+        }
+    }
+}

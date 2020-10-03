@@ -1,5 +1,5 @@
 .idea/**
-.gradle/**
+.gradle
 .*.log*
 .cache/*
 .vagrant/*
@@ -20,7 +20,7 @@ Vagrantfile
 resources/*
 test/*
 tools/*
-other
+tests_other
 docs/_build/
 ./*.txt
 cache/

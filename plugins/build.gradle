@@ -5,7 +5,8 @@ jar.enabled = false
 subprojects {
     apply plugin: 'java'
     apply plugin: 'groovy'
-
+    apply plugin: "io.nextflow.s3"
+    
     repositories {
         mavenLocal()
         mavenCentral()
@@ -31,6 +32,24 @@ subprojects {
         from configurations.compile
         into 'build/target/libs'
     }
+
+
+    s3 {
+        bucket = 'www2.nextflow.io'
+    }
+    
+    task uploadPlugin(type: S3Upload, dependsOn: plugin) {
+        // the provider mess is needed to lazy evaluate the `project.version` property
+        //   https://docs.gradle.org/current/userguide/lazy_configuration.html#lazy_properties
+        //   https://stackoverflow.com/questions/13198358/how-to-get-project-version-in-custom-gradle-plugin/13198744
+        file = providers.provider { "$buildDir/libs/${project.name}-${project.version}.zip" }
+        key = providers.provider { "plugins/${project.name}/${project.name}-${project.version}.zip" }
+        overwrite = true
+    }
+}
+
+task uploadPlugins() {
+    dependsOn subprojects.uploadPlugin
 }
 
 task assemblePlugins(type: Copy) {

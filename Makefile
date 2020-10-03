@@ -55,7 +55,7 @@ install:
 # Show dependencies try `make deps config=runtime`, `make deps config=google`
 #
 deps:
-	BUILD_PACK=1 ./gradlew -q ${mm}dependencies --configuration ${config}
+	./gradlew -q ${mm}dependencies --configuration ${config}
 
 deps-all:
 	./gradlew -q dependencyInsight --configuration ${config} --dependency ${module}

@@ -45,14 +45,15 @@ if (groovyVer) {
     }
 }
 
+def projects(String...args) {
+    args.collect {project(it)}
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'java-test-fixtures'
     apply plugin: 'idea'
     apply plugin: 'groovy'
-
-    version = new File('VERSION').text.trim()
-    group = 'io.nextflow'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -224,7 +225,6 @@ task exportClasspath {
     }
 }
 
-
 // plugin location
 ext.deployMode = 'prod' //'dev'
 ext.pluginsDir = ext.deployMode=='prod' ? "$rootProject.buildDir.path/plugins" : "${rootDir}/plugins"
@@ -237,21 +237,18 @@ ext.nexusEmail = project.findProperty('nexusEmail')
 // `signing.keyId` property needs to be defined in the `gradle.properties` file
 ext.enableSignArchives = project.findProperty('signing.keyId')
 
-ext.deployable = []
-ext.deployable << project(':nextflow')
-ext.deployable << project(':nf-commons')
-ext.deployable << project(':nf-console')
-ext.deployable << project(':nf-httpfs')
-//ext.deployable << project(':nf-ga4gh')
-//ext.deployable << project(':nf-google')
-//ext.deployable << project(':nf-amazon')
-//ext.deployable << project(':nf-tower')
+ext.coreProjects = projects( ':nextflow', ':nf-commons', ':nf-httpfs' )
+
+configure(coreProjects) {
+    version = new File('VERSION').text.trim()
+    group = 'io.nextflow'
+}
 
 /*
  * Maven central deployment
  * http://central.sonatype.org/pages/gradle.html
  */
-configure(deployable) {
+configure(coreProjects) {
     apply plugin: 'maven'
     apply plugin: 'signing'
 
@@ -347,7 +344,7 @@ task makeDigest { doLast {
 task upload {
     dependsOn compile
     dependsOn makeDigest
-    dependsOn deployable.uploadArchives
+    dependsOn coreProjects.uploadArchives
 }
 
 /*
