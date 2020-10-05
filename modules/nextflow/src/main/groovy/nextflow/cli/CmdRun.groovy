@@ -247,13 +247,14 @@ class CmdRun extends CmdBase implements HubOptions {
         final scriptFile = getScriptFile(pipeline)
 
         // create the config object
-        final config = new ConfigBuilder()
-                        .setOptions(launcher.options)
-                        .setCmdRun(this)
-                        .setBaseDir(scriptFile.parent)
+        final builder = new ConfigBuilder()
+                .setOptions(launcher.options)
+                .setCmdRun(this)
+                .setBaseDir(scriptFile.parent)
+        final config = builder .build()
 
         // -- load plugins
-        Plugins.setup()
+        Plugins.setup(config)
 
         // -- create a new runner instance
         final runner = new ScriptRunner(config)
@@ -262,6 +263,9 @@ class CmdRun extends CmdBase implements HubOptions {
         runner.session.commandLine = launcher.cliString
         runner.session.ansiLog = launcher.options.ansiLog
         runner.session.resolvedConfig = resolveConfig(scriptFile.parent)
+        // note config files are collected during the build process
+        // this line should be after `ConfigBuilder#build`
+        runner.session.configFiles = builder.parsedConfigFiles
 
         if( this.test ) {
             runner.test(this.test, scriptArgs)

@@ -49,6 +49,9 @@ def projects(String...args) {
     args.collect {project(it)}
 }
 
+version = new File('VERSION').text.trim()
+group = 'io.nextflow'
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'java-test-fixtures'

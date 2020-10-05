@@ -40,7 +40,6 @@ dependencies {
     compile ('org.jsoup:jsoup:1.11.2')
     compile 'jline:jline:2.9'
     compile 'org.pf4j:pf4j:3.4.1'
-    compile 'org.pf4j:pf4j-update:2.3.0'
 
     testCompile 'org.subethamail:subethasmtp:3.1.7'
 }

@@ -1,3 +1,5 @@
+package io.nextflow.gradle
+
 import java.text.DecimalFormat
 
 import com.amazonaws.auth.AWSCredentialsProviderChain
@@ -10,8 +12,11 @@ import com.amazonaws.event.ProgressListener
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.model.CannedAccessControlList
+import com.amazonaws.services.s3.model.PutObjectRequest
 import com.amazonaws.services.s3.transfer.Transfer
 import com.amazonaws.services.s3.transfer.TransferManager
+import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -22,21 +27,32 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class S3Extension {
-    String profile
-    String region
-    String bucket
+/**
+ * S3 uploader/downloader
+ *
+ * Based on https://github.com/mgk/s3-plugin/blob/master/src/main/groovy/com/github/mgk/gradle/S3Plugin.groovy
+ *
+ */
+
+@CompileStatic
+class NextflowPlugin implements Plugin<Project> {
+
+    void apply(Project target) {
+        target.extensions.create('s3', S3Extension)
+    }
+
 }
 
 
-abstract class S3Task extends DefaultTask {
-    @Input
-    String bucket
+class S3Extension {
+    String profile
+    String region
+}
 
-    String getBucket() { bucket ?: project.s3.bucket }
+abstract class S3Task extends DefaultTask {
 
     @Internal
-    def getS3Client() {
+    AmazonS3Client getS3Client() {
         def profileCreds
         if (project.s3.profile) {
             logger.quiet("Using AWS credentials profile: ${project.s3.profile}")
@@ -57,33 +73,57 @@ abstract class S3Task extends DefaultTask {
         if (region) {
             s3Client.region = Region.getRegion(Regions.fromName(region))
         }
-        s3Client
+        return s3Client
     }
 }
 
-
+@CompileStatic
 class S3Upload extends S3Task {
-    @Input
-    final Property<String> key = project.objects.property(String)
 
+    /**
+     * The S3 target path
+     *
+     * the provider mess is needed to lazy evaluate the `project.version` property
+     *   https://docs.gradle.org/current/userguide/lazy_configuration.html#lazy_properties
+     *   https://stackoverflow.com/questions/13198358/how-to-get-project-version-in-custom-gradle-plugin/13198744
+     *
+     */
     @Input
-    final Property<String> file = project.objects.property(String)
+    final Property<String> target = project.objects.property(String)
+
+    /**
+     * The source file to upload
+     */
+    @Input
+    final Property<String> source = project.objects.property(String)
 
     @Input
     boolean overwrite = false
 
+    @Input
+    boolean publicRead = false
+
     @TaskAction
     def task() {
-        final sourceFile = new File(file.get())
-        final targetKey = key.get()
+        final sourceFile = new File(source.get())
+        final targetUrl = target.get()
+        final urlTokens = BucketTokenizer.from(targetUrl)
+        if( urlTokens.scheme != 's3' )
+            throw new GradleException("S3 upload failed -- Invalid target s3 path: $targetUrl")
+        final bucket = urlTokens.bucket
+        final targetKey = urlTokens.key
 
         if( !sourceFile.exists() )
           throw new GradleException("S3 upload failed -- Source file does not exists: $sourceFile")
 
+        final req = new PutObjectRequest(bucket, targetKey, sourceFile)
+        if( publicRead )
+            req.withCannedAcl(CannedAccessControlList.PublicRead)
+
         if (s3Client.doesObjectExist(bucket, targetKey)) {
             if (overwrite) {
                 logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey} with overwrite")
-                s3Client.putObject(bucket, targetKey, sourceFile)
+                s3Client.putObject(req)
             }
             else {
                 throw new GradleException("s3://${bucket}/${targetKey} exists! -- Refuse to owerwrite it.")
@@ -91,13 +131,17 @@ class S3Upload extends S3Task {
         }
         else {
             logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey}")
-            s3Client.putObject(bucket, targetKey, sourceFile)
+            s3Client.putObject(req)
         }
     }
 }
 
-
+@CompileStatic
 class S3Download extends S3Task {
+
+    @Input
+    String bucket
+
     @Input
     String key
 
@@ -120,7 +164,7 @@ class S3Download extends S3Task {
         // directory download
         if (keyPrefix != null) {
             logger.quiet("S3 Download recursive s3://${bucket}/${keyPrefix} → ${project.file(destDir)}/")
-            transfer = tm.downloadDirectory(bucket, keyPrefix, project.file(destDir))
+            transfer = (Transfer) tm.downloadDirectory(bucket, keyPrefix, project.file(destDir))
         }
 
         // single file download
@@ -128,10 +172,10 @@ class S3Download extends S3Task {
             logger.quiet("S3 Download s3://${bucket}/${key} → ${file}")
             File f = new File(file)
             f.parentFile.mkdirs()
-            transfer = tm.download(bucket, key, f)
+            transfer = (Transfer) tm.download(bucket, key, f)
         }
 
-        def listener = new S3Listener()
+        S3Listener listener = new S3Listener()
         listener.transfer = transfer
         transfer.addProgressListener(listener)
         transfer.waitForCompletion()
@@ -147,9 +191,3 @@ class S3Download extends S3Task {
     }
 }
 
-
-class S3Plugin implements Plugin<Project> {
-    void apply(Project target) {
-        target.extensions.create('s3', S3Extension)
-    }
-}
