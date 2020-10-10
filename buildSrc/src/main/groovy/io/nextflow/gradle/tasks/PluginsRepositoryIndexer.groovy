@@ -1,4 +1,4 @@
-package io.nextflow.gradle
+package io.nextflow.gradle.tasks
 
 import java.util.regex.Pattern
 
@@ -10,6 +10,8 @@ import com.amazonaws.services.s3.model.PutObjectRequest
 import com.amazonaws.services.s3.model.S3ObjectSummary
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import io.nextflow.gradle.tasks.AbstractS3Task
+import io.nextflow.gradle.util.BucketTokenizer
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -18,12 +20,10 @@ import org.gradle.api.tasks.TaskAction
  * Create a plugin repository index traversing S3 directory structure
  * for PF4J update manager: https://github.com/pf4j/pf4j-update#repository-structure
  *
- * 
- *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
-class PluginsRepositoryIndex extends S3Task {
+class PluginsRepositoryIndexer extends AbstractS3Task {
 
     static private Pattern PATTERN_RIGHT_TRIM = ~/\s+$/
 

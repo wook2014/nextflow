@@ -1,4 +1,4 @@
-package io.nextflow.gradle
+package io.nextflow.gradle.util
 
 import java.util.regex.Pattern
 

@@ -49,8 +49,8 @@ def projects(String...args) {
     args.collect {project(it)}
 }
 
-version = new File('VERSION').text.trim()
 group = 'io.nextflow'
+version = new File('VERSION').text.trim()
 
 allprojects {
     apply plugin: 'java'
@@ -243,8 +243,8 @@ ext.enableSignArchives = project.findProperty('signing.keyId')
 ext.coreProjects = projects( ':nextflow', ':nf-commons', ':nf-httpfs' )
 
 configure(coreProjects) {
-    version = new File('VERSION').text.trim()
     group = 'io.nextflow'
+    version = new File('VERSION').text.trim()
 }
 
 /*
@@ -362,5 +362,6 @@ nexusStaging {
     delayBetweenRetriesInMillis = 10_000
 }
 
-if( System.env.BUILD_PACK )
+if( System.env.BUILD_PACK ) {
     apply from: 'packing.gradle'
+}
