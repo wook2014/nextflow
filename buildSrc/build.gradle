@@ -16,7 +16,7 @@ dependencies {
 gradlePlugin {
     plugins {
         simplePlugin {
-            id = 'nextflow-plugin'
+            id = 'nf-gradle-plugin'
             implementationClass = 'io.nextflow.gradle.NextflowPlugin'
         }
     }

@@ -191,9 +191,13 @@ task buildInfo { doLast {
     def plugins = []
     new File(rootProject.rootDir, 'plugins')
             .eachDir { if(it.name.startsWith('nf-')) plugins << project(":plugins:${it.name}") }
-    def meta = plugins
-        .collect { "$it.name@$it.version" }.join('\n')
-    file('modules/nextflow/src/main/resources/META-INF/plugins-info.txt').text = meta
+
+    def meta = plugins .collect { "$it.name@$it.version" }
+    // add external ignite module
+    // https://github.com/nextflow-io/nf-ignite
+    meta << 'nf-ignite@1.1.0'
+
+    file('modules/nextflow/src/main/resources/META-INF/plugins-info.txt').text = meta.join('\n')
 }}
 
 
@@ -235,10 +239,6 @@ task exportClasspath {
         file('.launch.classpath').text = libs.join(':')
     }
 }
-
-// plugin location
-ext.deployMode = 'prod' //'dev'
-ext.pluginsDir = ext.deployMode=='prod' ? "$rootProject.buildDir.path/plugins" : "${rootDir}/plugins"
 
 ext.nexusUsername = project.findProperty('nexusUsername')
 ext.nexusPassword = project.findProperty('nexusPassword')

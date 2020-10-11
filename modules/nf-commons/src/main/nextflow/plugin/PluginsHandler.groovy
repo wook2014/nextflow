@@ -29,6 +29,8 @@ import org.pf4j.update.UpdateRepository
 @CompileStatic
 class PluginsHandler implements PluginStateListener {
 
+    private static final String DEFAULT_PLUGINS_REPO = 'https://raw.githubusercontent.com/nextflow-io/plugins/main/plugins.json'
+
     private String mode
     private Path root
     private UpdateManager updater
@@ -77,7 +79,7 @@ class PluginsHandler implements PluginStateListener {
 
     protected UpdateManager createUpdater(PluginManager manager) {
         final repos = new ArrayList<UpdateRepository>()
-        repos << new DefaultUpdateRepository('nextflow.io', new URL('http://www.nextflow.io.s3-website-eu-west-1.amazonaws.com/plugins/plugins.json'))
+        repos << new DefaultUpdateRepository('nextflow.io', new URL(DEFAULT_PLUGINS_REPO))
         new UpdateManager(manager, repos)
     }
 
@@ -159,12 +161,15 @@ class PluginsHandler implements PluginStateListener {
     List<PluginSpec> defaultPluginsFor(Map config) {
         final plugins = new ArrayList<PluginSpec>()
         final executor = Bolts.navigate(config, 'process.executor')
-        if( executor == 'awsbatch' ) {
+
+        if( executor == 'awsbatch' )
             plugins << defaultPlugins.getPlugin('nf-amazon')
-        }
-        if( executor == 'google-lifesciences' ) {
+
+        if( executor == 'google-lifesciences' )
             plugins << defaultPlugins.getPlugin('nf-google')
-        }
+
+        if( executor == 'ignite' )
+            plugins << defaultPlugins.getPlugin('nf-ignite')
 
         return plugins
     }

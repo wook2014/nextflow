@@ -4,7 +4,7 @@ import io.nextflow.gradle.tasks.S3Upload
 import org.apache.commons.codec.digest.DigestUtils
 
 apply plugin: 'java'
-apply plugin: "nextflow-plugin"
+apply plugin: "nf-gradle-plugin"
 
 jar.enabled = false
 
@@ -27,7 +27,7 @@ ext.plugins_index_url = 'https://raw.githubusercontent.com/nextflow-io/plugins/m
 subprojects {
     apply plugin: 'java'
     apply plugin: 'groovy'
-    apply plugin: "nextflow-plugin"
+    apply plugin: 'nf-gradle-plugin'
     
     repositories {
         mavenLocal()
@@ -52,7 +52,7 @@ subprojects {
             // create the meta file
             final zip = new File("$buildDir/libs/${project.name}-${project.version}.zip")
             final meta = new File("$buildDir/libs/${project.name}-${project.version}.json")
-            meta.text = """
+            meta.text = """\
               {
                 "version": "${project.version}",
                 "date": "${timestamp}",
@@ -65,7 +65,7 @@ subprojects {
 
     task assemblePlugin(type: Copy) {
         from plugin
-        into pluginsDir
+        into "$buildDir/plugins"
     }
 
     task targetLibs(type: Sync) {
