@@ -17,10 +17,10 @@
 
 package nextflow.ui.console
 
-import java.nio.file.Path
-import java.nio.file.Paths
 import javax.swing.*
 import javax.swing.filechooser.FileFilter
+import java.nio.file.Path
+import java.nio.file.Paths
 
 import groovy.transform.ThreadInterrupt
 import groovy.ui.Console
@@ -34,9 +34,7 @@ import nextflow.config.ConfigBuilder
 import nextflow.script.ScriptBinding
 import nextflow.script.ScriptFile
 import nextflow.script.ScriptParser
-import nextflow.util.LoggerHelper
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
-import org.codehaus.groovy.runtime.StackTraceUtils
 /**
  * Implement a REPL console for Nextflow DSL based on Groovy console
  *
@@ -198,54 +196,20 @@ class Nextflow extends Console {
 
 
     /**
-     * Nextflow REPL entry point
-     *
-     * @param args
-     */
-    static void main(String... args) {
-        CliOptions opts = new CliOptions()
-        opts.logFile = '.nextflow-console.log'
-        new LoggerHelper(opts).setup()
-
-        if (args.length == 2 && args[1] == '--help') {
-            println 'usage: nextflow console [filename]'
-            return
-        }
-
-        // full stack trace should not be logged to the output window - GROOVY-4663
-        java.util.logging.Logger.getLogger(StackTraceUtils.STACK_LOG_NAME).useParentHandlers = false
-
-        //when starting via main set the look and feel to system
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
-
-        def console = new Nextflow(Nextflow.getClassLoader())
-        console.useScriptClassLoaderForScriptExecution = true
-        console.run()
-        if (args.length == 2)
-            try {
-                console.loadScriptFile(args[1] as File)
-            }
-            catch( IOException e ) {
-                log.warn("Can't open script file: ${args[1]}" )
-            }
-
-    }
-
-    /**
      * Filter supported script files in open dialog
      */
     private static class NextflowFileFilter extends FileFilter {
         private static final SOURCE_EXTENSIONS = ['*.nf', '*.groovy']
         private static final SOURCE_EXT_DESC = SOURCE_EXTENSIONS.join(',')
 
-        public boolean accept(File f) {
+        boolean accept(File f) {
             if (f.isDirectory()) {
                 return true
             }
             SOURCE_EXTENSIONS.find {it == getExtension(f)} ? true : false
         }
 
-        public String getDescription() {
+        String getDescription() {
             "Nextflow scripts ($SOURCE_EXT_DESC)"
         }
 

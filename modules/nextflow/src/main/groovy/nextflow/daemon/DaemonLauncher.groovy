@@ -22,7 +22,7 @@ package nextflow.daemon
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-public interface DaemonLauncher {
+interface DaemonLauncher {
 
     void launch( Map config )
 

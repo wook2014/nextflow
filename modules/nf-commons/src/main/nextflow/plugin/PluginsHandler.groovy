@@ -21,7 +21,6 @@ import org.pf4j.PluginStateListener
 import org.pf4j.update.DefaultUpdateRepository
 import org.pf4j.update.UpdateManager
 import org.pf4j.update.UpdateRepository
-
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -34,17 +33,20 @@ class PluginsHandler implements PluginStateListener {
     private Path root
     private UpdateManager updater
     private PluginManager manager
+    private DefaultPlugins defaultPlugins
 
     PluginsHandler() {
         mode = System.getenv('NXF_PLUGINS_MODE') ?: 'prod'
         root = Paths.get(System.getenv('NXF_PLUGINS_DIR') ?: ( mode=='dev' ? 'plugins' : '.plugins' ) )
         System.setProperty('pf4j.mode', mode)
+        defaultPlugins = new DefaultPlugins()
     }
 
     PluginsHandler(Path root, String mode='prod') {
         this.mode = mode
         this.root = root
         System.setProperty('pf4j.mode', mode)
+        defaultPlugins = new DefaultPlugins()
     }
 
     protected void init(Path root) {
@@ -121,6 +123,9 @@ class PluginsHandler implements PluginStateListener {
     }
 
 
+    void start( String pluginId ) {
+         start( defaultPlugins.getPlugin(pluginId) )
+    }
 
     void start(PluginSpec plugin) {
         final result = manager.getPlugin(plugin.id)
@@ -138,13 +143,12 @@ class PluginsHandler implements PluginStateListener {
     }
 
     void start(Map config) {
-        def meta = this.class.getResourceAsStream('/META-INF/plugins-info.txt')?.text
         def specs = parseConf(config)
         if( specs ) {
             log.debug "Plugins declared=$specs"
         }
         else {
-            specs = defaultPlugins(config, parseMeta(meta))
+            specs = defaultPluginsFor(config)
             log.debug "Plugins inferred=$specs"
         }
         for( PluginSpec it : specs ) {
@@ -152,14 +156,14 @@ class PluginsHandler implements PluginStateListener {
         }
     }
 
-    static List<PluginSpec> defaultPlugins(Map config, List<PluginSpec> defaultPlugins) {
+    List<PluginSpec> defaultPluginsFor(Map config) {
         final plugins = new ArrayList<PluginSpec>()
         final executor = Bolts.navigate(config, 'process.executor')
         if( executor == 'awsbatch' ) {
-            plugins << defaultPlugins.find { it.id == 'nf-amazon' }
+            plugins << defaultPlugins.getPlugin('nf-amazon')
         }
         if( executor == 'google-lifesciences' ) {
-            plugins << defaultPlugins.find { it.id == 'nf-google' }
+            plugins << defaultPlugins.getPlugin('nf-google')
         }
 
         return plugins
@@ -181,15 +185,4 @@ class PluginsHandler implements PluginStateListener {
     }
 
 
-    static protected List<PluginSpec> parseMeta(String meta) {
-        if( !meta )
-            return Collections.emptyList()
-
-        final result = new ArrayList()
-        for( String line : meta.readLines() ) {
-            def tokens = line.tokenize('@')
-            result.add( new PluginSpec(tokens[0], tokens[1]))
-        }
-        return result
-    }
 }

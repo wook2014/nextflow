@@ -21,11 +21,20 @@ class Plugins {
         INSTANCE.setup(config)
     }
 
+    static void start(String pluginId) {
+        INSTANCE.start(pluginId)
+    }
+
     static synchronized void stop() {
         INSTANCE.stop()
     }
 
     static <T> List<T> getExtensions(Class<T> type) {
         INSTANCE.getExtensions(type)
+    }
+
+    static <T> T getExtension(Class<T> type) {
+        final allExtensions = INSTANCE.getExtensions(type)
+        return allExtensions ? allExtensions.first() : null
     }
 }
