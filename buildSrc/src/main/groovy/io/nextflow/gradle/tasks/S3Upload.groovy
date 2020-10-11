@@ -5,11 +5,11 @@ import com.amazonaws.services.s3.model.PutObjectRequest
 import groovy.transform.CompileStatic
 import io.nextflow.gradle.tasks.AbstractS3Task
 import io.nextflow.gradle.util.BucketTokenizer
+import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-
 /**
  * Upload files to a S3 bucket
  * 
@@ -35,11 +35,13 @@ class S3Upload extends AbstractS3Task {
     @Input
     final Property<String> source = project.objects.property(String)
 
-    @Input
-    boolean overwrite = false
+    @Input boolean overwrite = false
 
-    @Input
-    boolean publicRead = false
+    @Input boolean publicRead = false
+
+    @Input boolean dryRun = false
+
+    @Input boolean skipExisting
 
     @TaskAction
     def task() {
@@ -54,21 +56,38 @@ class S3Upload extends AbstractS3Task {
         if( !sourceFile.exists() )
             throw new GradleException("S3 upload failed -- Source file does not exists: $sourceFile")
 
-        final req = new PutObjectRequest(bucket, targetKey, sourceFile)
-        if( publicRead )
-            req.withCannedAcl(CannedAccessControlList.PublicRead)
-
         if (s3Client.doesObjectExist(bucket, targetKey)) {
             if (overwrite) {
-                logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey} with overwrite")
-                s3Client.putObject(req)
+                copy(sourceFile, bucket, targetKey)
             }
-            else {
+            else if( skipExisting ) {
+                logger.quiet("s3://${bucket}/${targetKey} exists! -- Skipping it.")
+            }
+            else if( !isSameContent(sourceFile, bucket, targetKey)) {
                 throw new GradleException("s3://${bucket}/${targetKey} exists! -- Refuse to owerwrite it.")
             }
         }
         else {
-            logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey}")
+            copy(sourceFile, bucket, targetKey)
+        }
+    }
+
+    boolean isSameContent(File sourceFile, String bucket, String targetKey) {
+        final d1= DigestUtils.sha512(sourceFile.bytes)
+        final d2= DigestUtils.sha512(s3Client.getObject(bucket, targetKey).getObjectContent())
+        return d1==d2
+    }
+
+    void copy(File sourceFile, String bucket, String targetKey) {
+        if( dryRun ) {
+            logger.quiet("S3 Would upload ${sourceFile} → s3://${bucket}/${targetKey} with overwrite")
+        }
+        else {
+            final req = new PutObjectRequest(bucket, targetKey, sourceFile)
+            if( publicRead )
+                req.withCannedAcl(CannedAccessControlList.PublicRead)
+
+            logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey} with overwrite")
             s3Client.putObject(req)
         }
     }

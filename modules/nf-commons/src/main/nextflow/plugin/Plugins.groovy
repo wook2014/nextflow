@@ -13,7 +13,7 @@ import org.pf4j.PluginManager
 @CompileStatic
 class Plugins {
 
-    private final static PluginsImpl INSTANCE = new PluginsImpl()
+    private final static PluginsHandler INSTANCE = new PluginsHandler()
 
     static PluginManager getManager() { INSTANCE.manager }
 

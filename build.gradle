@@ -186,6 +186,14 @@ task buildInfo { doLast {
     src = file0.text
     src = src.replaceAll(/releases\/v[0-9a-zA-Z_\-\.]+\//, "releases/v$version/" as String)
     file0.text = src
+
+    // -- create plugins-info file
+    def plugins = []
+    new File(rootProject.rootDir, 'plugins')
+            .eachDir { if(it.name.startsWith('nf-')) plugins << project(":plugins:${it.name}") }
+    def meta = plugins
+        .collect { "$it.name@$it.version" }.join('\n')
+    file('modules/nextflow/src/main/resources/META-INF/plugins-info.txt').text = meta
 }}
 
 
@@ -194,7 +202,7 @@ task buildInfo { doLast {
  */
 task compile {
     dependsOn buildInfo
-    dependsOn allprojects.jar
+    dependsOn allprojects.assemble
 }
 
 def getRuntimeConfigs() {
@@ -365,3 +373,4 @@ nexusStaging {
 if( System.env.BUILD_PACK ) {
     apply from: 'packing.gradle'
 }
+

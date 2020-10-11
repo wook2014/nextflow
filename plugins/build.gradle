@@ -1,5 +1,6 @@
-import io.nextflow.gradle.PluginsRepositoryIndex
-import io.nextflow.gradle.S3Upload
+import io.nextflow.gradle.tasks.PluginsRepositoryPublisher
+import io.nextflow.gradle.tasks.PluginsRepositoryIndexer
+import io.nextflow.gradle.tasks.S3Upload
 import org.apache.commons.codec.digest.DigestUtils
 
 apply plugin: 'java'
@@ -19,8 +20,9 @@ String now() {
 
 def timestamp = now()
 
-ext.s3PublishUrl = 's3://www.nextflow.io/plugins'
-ext.httpPublishUrl = 'http://www.nextflow.io.s3-website-eu-west-1.amazonaws.com/plugins'
+ext.plugins_s3_url = 's3://www.nextflow.io/plugins'
+ext.plugins_http_url = 'http://www.nextflow.io.s3-website-eu-west-1.amazonaws.com/plugins'
+ext.plugins_index_url = 'https://raw.githubusercontent.com/nextflow-io/plugins/main/plugins.json'
 
 subprojects {
     apply plugin: 'java'
@@ -42,7 +44,9 @@ subprojects {
         into('lib') {
             from configurations.compile
         }
-        archiveExtension ='zip'
+        archiveExtension = 'zip'
+        preserveFileTimestamps = false
+        reproducibleFileOrder = true
 
         doLast {
             // create the meta file
@@ -52,7 +56,7 @@ subprojects {
               {
                 "version": "${project.version}",
                 "date": "${timestamp}",
-                "url": "$httpPublishUrl/${project.name}/${project.name}-${project.version}.zip",
+                "url": "$plugins_http_url/${project.name}/${project.name}-${project.version}.zip",
                 "sha512sum": "${computeSha512(zip)}"
               }
             """.stripIndent()
@@ -74,15 +78,14 @@ subprojects {
         //   https://docs.gradle.org/current/userguide/lazy_configuration.html#lazy_properties
         //   https://stackoverflow.com/questions/13198358/how-to-get-project-version-in-custom-gradle-plugin/13198744
         source = providers.provider { "$buildDir/libs/${project.name}-${project.version}.zip" }
-        target = providers.provider { "$s3PublishUrl/${project.name}/${project.name}-${project.version}.zip" }
-        overwrite = true
+        target = providers.provider { "$plugins_s3_url/${project.name}/${project.name}-${project.version}.zip" }
         publicRead = true
     }
 
     task uploadPluginMeta(type: S3Upload, dependsOn: plugin) {
         source = providers.provider { "$buildDir/libs/${project.name}-${project.version}.json" }
-        target = providers.provider { "$s3PublishUrl/${project.name}/${project.name}-${project.version}.json" }
-        overwrite = true
+        target = providers.provider { "$plugins_s3_url/${project.name}/${project.name}-${project.version}.json" }
+        skipExisting = true
         publicRead = true
     }
 
@@ -90,14 +93,24 @@ subprojects {
     }
 }
 
-task uploadRepositoryIndex(type: PluginsRepositoryIndex) {
-    publishUrl = s3PublishUrl
+task uploadRepositoryIndex(type: PluginsRepositoryIndexer) {
+    publishUrl = plugins_s3_url
 }
 
 task uploadPlugins(dependsOn: [subprojects.uploadPlugin]) {
 }
 
+
 task assemblePlugins(type: Copy, dependsOn: [subprojects.assemblePlugin, subprojects.targetLibs]) {
 }
 
 assemble.dependsOn subprojects.assemblePlugin, subprojects.targetLibs
+
+
+task publishRepositoryIndex( type: PluginsRepositoryPublisher ) {
+    repositoryUrl = plugins_s3_url
+    indexUrl = plugins_index_url
+    githubUser = 'pditommaso'
+    githubEmail = 'paolo.ditommaso@gmail.com'
+    githubToken = System.getenv('GITHUB_TOKEN')
+}

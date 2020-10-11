@@ -1,0 +1,6 @@
+nf-amazon@0.1.0
+nf-console@0.1.0
+nf-google@0.1.0
+nf-tower@0.1.0
+nf-alibaba@0.1.0
+nf-ga4gh@0.1.0

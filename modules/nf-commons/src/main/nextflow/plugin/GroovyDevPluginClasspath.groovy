@@ -13,6 +13,8 @@ import org.pf4j.PluginClasspath;
 @CompileStatic
 class GroovyDevPluginClasspath extends PluginClasspath {
 
+    private boolean logged
+
     GroovyDevPluginClasspath() {
         // the path where classes are resources should be found in the dev environment
         // for each plugin project directory
@@ -23,7 +25,23 @@ class GroovyDevPluginClasspath extends PluginClasspath {
         // see `targetLibs` task in the base plugins `build.gradle`
         addJarsDirectories('build/target/libs')
 
-        log.debug "Groovy DEV plugin classpath: classes-dirs=${getClassesDirectories()}; jars-dirs=${getJarsDirectories()}"
     }
 
+    @Override
+    Set<String> getClassesDirectories() {
+        if( !logged ) {
+            log.debug "Groovy DEV plugin classpath: classes-dirs=${super.getClassesDirectories()}; jars-dirs=${super.getJarsDirectories()}"
+            logged = true
+        }
+        return super.getClassesDirectories()
+    }
+
+    @Override
+    Set<String> getJarsDirectories() {
+        if( !logged ) {
+            log.debug "Groovy DEV plugin classpath: classes-dirs=${super.getClassesDirectories()}; jars-dirs=${super.getJarsDirectories()}"
+            logged = true
+        }
+        return super.getJarsDirectories()
+    }
 }
