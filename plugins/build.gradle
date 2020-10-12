@@ -1,5 +1,4 @@
 import io.nextflow.gradle.tasks.PluginsRepositoryPublisher
-import io.nextflow.gradle.tasks.PluginsRepositoryIndexer
 import io.nextflow.gradle.tasks.S3Upload
 import org.apache.commons.codec.digest.DigestUtils
 
@@ -44,6 +43,7 @@ subprojects {
         into('lib') {
             from configurations.compile
         }
+        manifest.from file('src/resources/META-INF/MANIFEST.MF')
         archiveExtension = 'zip'
         preserveFileTimestamps = false
         reproducibleFileOrder = true
@@ -91,10 +91,6 @@ subprojects {
 
     task uploadPlugin(dependsOn: [uploadPluginMeta, uploadPluginZip] ) {
     }
-}
-
-task uploadRepositoryIndex(type: PluginsRepositoryIndexer) {
-    publishUrl = plugins_s3_url
 }
 
 task uploadPlugins(dependsOn: [subprojects.uploadPlugin]) {

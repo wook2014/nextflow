@@ -129,3 +129,10 @@ dockerImage:
 #
 dockerPack:
 	BUILD_PACK=1 ./gradlew install dockerPack -Dmaven.repo.local=${PWD}/build/docker/.nextflow/capsule/deps/ -x signArchives
+
+
+upload-plugins:
+	./gradlew plugins:uploadPlugins
+
+publish-index:
+	./gradlew plugins:publishRepositoryIndex
