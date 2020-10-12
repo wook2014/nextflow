@@ -22,7 +22,8 @@ import org.pf4j.update.DefaultUpdateRepository
 import org.pf4j.update.UpdateManager
 import org.pf4j.update.UpdateRepository
 /**
- *
+ * Manage plugins installation and configuration
+ * 
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Slf4j
@@ -31,6 +32,8 @@ class PluginsHandler implements PluginStateListener {
 
     private static final String DEFAULT_PLUGINS_REPO = 'https://raw.githubusercontent.com/nextflow-io/plugins/main/plugins.json'
 
+    private Map<String,String> env = new HashMap<>(System.getenv())
+
     private String mode
     private Path root
     private UpdateManager updater
@@ -38,8 +41,8 @@ class PluginsHandler implements PluginStateListener {
     private DefaultPlugins defaultPlugins
 
     PluginsHandler() {
-        mode = System.getenv('NXF_PLUGINS_MODE') ?: 'prod'
-        root = Paths.get(System.getenv('NXF_PLUGINS_DIR') ?: ( mode=='dev' ? 'plugins' : '.plugins' ) )
+        mode = env.get('NXF_PLUGINS_MODE') ?: 'prod'
+        root = Paths.get(env.get('NXF_PLUGINS_DIR') ?: ( mode=='dev' ? 'plugins' : '.plugins' ) )
         System.setProperty('pf4j.mode', mode)
         defaultPlugins = new DefaultPlugins()
     }
@@ -145,20 +148,26 @@ class PluginsHandler implements PluginStateListener {
     }
 
     void start(Map config) {
-        def specs = parseConf(config)
-        if( specs ) {
-            log.debug "Plugins declared=$specs"
-        }
-        else {
-            specs = defaultPluginsFor(config)
-            log.debug "Plugins inferred=$specs"
-        }
+        def specs = pluginsRequirement(config)
         for( PluginSpec it : specs ) {
             start(it)
         }
     }
 
-    List<PluginSpec> defaultPluginsFor(Map config) {
+    protected List<PluginSpec> pluginsRequirement(Map config) {
+        def specs = parseConf(config)
+        if( specs ) {
+            log.debug "Plugins declared=$specs"
+        }
+        else if( env.get('NXF_PLUGINS_DEFAULT')=='true' ){
+            specs = defaultPluginsConf(config)
+            log.debug "Plugins default=$specs"
+        }
+
+        return specs
+    }
+
+    protected List<PluginSpec> defaultPluginsConf(Map config) {
         final plugins = new ArrayList<PluginSpec>()
         final executor = Bolts.navigate(config, 'process.executor')
 
@@ -174,7 +183,7 @@ class PluginsHandler implements PluginStateListener {
         }
 
         if( !plugins ) {
-            // always include amazon plugin for backward compability
+            // always include amazon plugin for backward compatibility
             plugins << defaultPlugins.getPlugin('nf-amazon')
         }
 
@@ -187,7 +196,7 @@ class PluginsHandler implements PluginStateListener {
      * @param config The nextflow config as a Map object
      * @return The list of declared plugins
      */
-    static protected List<PluginSpec> parseConf(Map config) {
+    protected List<PluginSpec> parseConf(Map config) {
         final pluginsConf = config.plugins as List<Map>
         final result = new ArrayList( pluginsConf?.size() ?: 0 )
         if(pluginsConf) for( Map entry : pluginsConf ) {
@@ -195,6 +204,5 @@ class PluginsHandler implements PluginStateListener {
         }
         return result
     }
-
 
 }

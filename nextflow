@@ -265,6 +265,7 @@ CAPSULE_CACHE_DIR=${CAPSULE_CACHE_DIR:="$NXF_HOME/capsule"}
 
 NXF_PLUGINS_DIR=${NXF_PLUGINS_DIR:-$NXF_HOME/plugins}
 NXF_PLUGINS_MODE=${NXF_PLUGINS_MODE:-prod}
+NXF_PLUGINS_DEFAULT=${NXF_PLUGINS_DEFAULT:-true}
 
 NXF_PACK=one
 NXF_MODE=${NXF_MODE:-''}
@@ -388,6 +389,7 @@ export JAVA_CMD
 export CAPSULE_CACHE_DIR
 export NXF_PLUGINS_DIR
 export NXF_PLUGINS_MODE
+export NXF_PLUGINS_DEFAULT
 
 # lookup the a `md5` command
 if hash md5sum 2>/dev/null; then MD5=md5sum;

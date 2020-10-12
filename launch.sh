@@ -79,6 +79,7 @@ JVM_ARGS+=" -Dfile.encoding=UTF-8 -XX:+TieredCompilation -XX:TieredStopAtLevel=1
 ##JVM_ARGS+=" -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=60s,filename=myrecording.jfr"
 NXF_PLUGINS_DIR=${NXF_PLUGINS_DIR:-$base_dir/plugins}
 NXF_PLUGINS_MODE=${NXF_PLUGINS_MODE:-dev}
+NXF_PLUGINS_DEFAULT=${NXF_PLUGINS_DEFAULT:-true}
 NXF_HOME=${NXF_HOME:-$HOME/.nextflow}
 NXF_OPTS=${NXF_OPTS:-}
 NXF_CLI="$0 $@"
@@ -86,6 +87,7 @@ export NXF_CLI
 export COLUMNS
 export NXF_PLUGINS_DIR
 export NXF_PLUGINS_MODE
+export NXF_PLUGINS_DEFAULT
 
 #
 # classpath when the application is compiled with gradle

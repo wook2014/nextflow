@@ -11,7 +11,6 @@ class DefaultPlugins {
 
     private Map<String,PluginSpec> plugins = new HashMap<>(20)
 
-
     DefaultPlugins() {
         final meta = this.class.getResourceAsStream('/META-INF/plugins-info.txt')?.text
         plugins = parseMeta(meta)
