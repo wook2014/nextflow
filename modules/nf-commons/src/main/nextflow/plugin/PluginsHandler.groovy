@@ -168,8 +168,15 @@ class PluginsHandler implements PluginStateListener {
         if( executor == 'google-lifesciences' )
             plugins << defaultPlugins.getPlugin('nf-google')
 
-        if( executor == 'ignite' )
+        if( executor == 'ignite' ) {
             plugins << defaultPlugins.getPlugin('nf-ignite')
+            plugins << defaultPlugins.getPlugin('nf-amazon')
+        }
+
+        if( !plugins ) {
+            // always include amazon plugin for backward compability
+            plugins << defaultPlugins.getPlugin('nf-amazon')
+        }
 
         return plugins
     }
