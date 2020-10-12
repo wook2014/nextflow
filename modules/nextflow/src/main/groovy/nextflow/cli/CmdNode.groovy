@@ -53,6 +53,7 @@ class CmdNode extends CmdBase {
 
     @Override
     void run() {
+        System.setProperty('nxf.node.daemon', 'true')
         launchDaemon(provider ? provider[0] : null)
     }
 

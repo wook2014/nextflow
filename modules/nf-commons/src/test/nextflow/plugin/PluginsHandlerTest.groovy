@@ -55,13 +55,44 @@ class PluginsHandlerTest extends Specification {
         plugins[1].version == '3.2.1'
     }
 
+    def 'should return plugin requirements' () {
+        given:
+        def defaults = new DefaultPlugins(plugins: [
+                'nf-amazon': new PluginSpec('nf-amazon', '0.1.0'),
+                'nf-google': new PluginSpec('nf-google', '0.1.0'),
+                'nf-ignite': new PluginSpec('nf-ignite', '0.1.0'),
+                'nf-tower': new PluginSpec('nf-tower', '0.1.0')
+        ])
+        and:
+        def handler = new PluginsHandler(defaultPlugins: defaults, env: [:])
+
+        when:
+        def result = handler.pluginsRequirement([:])
+        then:
+        result == []
+
+        when:
+        handler = new PluginsHandler(defaultPlugins: defaults, env: [NXF_PLUGINS_DEFAULT:'true'])
+        result = handler.pluginsRequirement([:])
+        then:
+        result == [ new PluginSpec('nf-amazon', '0.1.0')]
+
+        when:
+        handler = new PluginsHandler(defaultPlugins: defaults, env: [NXF_PLUGINS_DEFAULT:'true'])
+        result = handler.pluginsRequirement([tower:[enabled:true]])
+        then:
+        result == [
+                new PluginSpec('nf-amazon', '0.1.0'),
+                new PluginSpec('nf-tower', '0.1.0') ]
+    }
 
     def 'should return default plugins given config' () {
         given:
         def defaults = new DefaultPlugins(plugins: [
                 'nf-amazon': new PluginSpec('nf-amazon', '0.1.0'),
                 'nf-google': new PluginSpec('nf-google', '0.1.0'),
-                'nf-ignite': new PluginSpec('nf-ignite', '0.1.0')
+                'nf-ignite': new PluginSpec('nf-ignite', '0.1.0'),
+                'nf-tower': new PluginSpec('nf-tower', '0.1.0')
         ])
         and:
         def handler = new PluginsHandler(defaultPlugins: defaults)
@@ -93,5 +124,6 @@ class PluginsHandlerTest extends Specification {
         plugins.find { it.id == 'nf-amazon' }
         !plugins.find { it.id == 'nf-ignite' }
         !plugins.find { it.id == 'nf-google' }
+
     }
 }

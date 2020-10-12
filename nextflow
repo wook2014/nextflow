@@ -384,7 +384,6 @@ fi
 [[ "$COLUMNS" ]] && export COLUMNS
 [[ "$NXF_TEMP" ]] && JAVA_OPTS+=(-Djava.io.tmpdir="$NXF_TEMP")
 [[ "${jvmopts[@]}" ]] && JAVA_OPTS+=("${jvmopts[@]}")
-# use drip to speedup startup time -- https://github.com/ninjudd/drip
 export JAVA_CMD
 export CAPSULE_CACHE_DIR
 export NXF_PLUGINS_DIR

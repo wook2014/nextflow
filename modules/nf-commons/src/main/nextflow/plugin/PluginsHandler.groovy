@@ -164,6 +164,11 @@ class PluginsHandler implements PluginStateListener {
             log.debug "Plugins default=$specs"
         }
 
+        // add tower plugin when config contains tower options
+        if( config.containsKey('tower') && !specs.find {it.id == 'tower' } ) {
+            specs << defaultPlugins.getPlugin('nf-tower')
+        }
+
         return specs
     }
 
@@ -177,7 +182,7 @@ class PluginsHandler implements PluginStateListener {
         if( executor == 'google-lifesciences' )
             plugins << defaultPlugins.getPlugin('nf-google')
 
-        if( executor == 'ignite' ) {
+        if( executor == 'ignite' || System.getProperty('nxf.node.daemon')=='true') {
             plugins << defaultPlugins.getPlugin('nf-ignite')
             plugins << defaultPlugins.getPlugin('nf-amazon')
         }
