@@ -13,7 +13,9 @@ export TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST:=false}
 # Tests
 #
 (
-  cd ../tests/checks; 
+  cd ../tests/
+  sudo bash cleanup.sh
+  cd checks
   bash run.sh
 )
 
