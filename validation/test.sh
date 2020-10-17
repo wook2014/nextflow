@@ -35,6 +35,11 @@ echo Skipping tests requiring secret vars
 exit 0
 fi
 
+if [[ $TEST_SMOKE == true ]]; then
+  echo Skipping tests since TEST_SMOKE flag is true
+  exit 0
+fi
+
 #
 # AMPA-NF
 #
