@@ -19,6 +19,11 @@ export TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST:=false}
   bash run.sh
 )
 
+if [[ $TEST_SMOKE == true ]]; then
+  echo Skipping tests since TEST_SMOKE flag is true
+  exit 0
+fi
+
 # disable ansi log to make log more readable
 export NXF_ANSI_LOG=false
 
@@ -35,11 +40,6 @@ git clone https://github.com/nextflow-io/hello
 if [[ $TRAVIS_PULL_REQUEST != false ]]; then
 echo Skipping tests requiring secret vars
 exit 0
-fi
-
-if [[ $TEST_SMOKE == true ]]; then
-  echo Skipping tests since TEST_SMOKE flag is true
-  exit 0
 fi
 
 #

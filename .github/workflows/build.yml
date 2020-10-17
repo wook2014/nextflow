@@ -66,7 +66,14 @@ jobs:
         TOWER_ACCESS_TOKEN: ${{ secrets.TOWER_ACCESS_TOKEN }}
         GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
 
-    - name: Integration
+    - name: Setup JVM 8
+      if: "matrix.java_version > 8"
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+        architecture: x64
+
+    - name: Integration JVM 8
       if: "matrix.java_version > 8"
       run: ./integration-tests.sh
       env:
