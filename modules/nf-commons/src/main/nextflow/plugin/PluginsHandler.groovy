@@ -202,10 +202,10 @@ class PluginsHandler implements PluginStateListener {
      * @return The list of declared plugins
      */
     protected List<PluginSpec> parseConf(Map config) {
-        final pluginsConf = config.plugins as List<Map>
+        final pluginsConf = config.plugins as List<String>
         final result = new ArrayList( pluginsConf?.size() ?: 0 )
-        if(pluginsConf) for( Map entry : pluginsConf ) {
-            result.add( new PluginSpec(entry.id as String, entry.version as String) )
+        if(pluginsConf) for( String it : pluginsConf ) {
+            result.add( PluginSpec.parse(it) )
         }
         return result
     }

@@ -3,6 +3,7 @@ package nextflow.plugin
 import groovy.transform.CompileStatic
 
 /**
+ * Model the collection of default plugins used if no plugins are provided by the user
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
@@ -22,9 +23,8 @@ class DefaultPlugins {
 
         final result = new HashMap(20)
         for( String line : meta.readLines() ) {
-            final tokens = line.tokenize('@')
-            final id = tokens[0]
-            result[id] = new PluginSpec(id, tokens[1])
+            final spec = PluginSpec.parse(line)
+            result[spec.id] = spec
         }
         return result
     }
