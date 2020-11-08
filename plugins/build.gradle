@@ -17,6 +17,18 @@ String now() {
     "${java.time.OffsetDateTime.now().format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)}"
 }
 
+String verFromManifest(File file) {
+    def str = file.text
+    def regex = ~/(?m)^Plugin-Version:\s*([\w-\.]+)$/
+    def m = regex.matcher(str)
+    if( m.find() ) {
+        def ver = m.group(1)
+        println "Set plugin '${file.parentFile.parentFile.parentFile.parentFile.name}' version=${ver}"
+        return ver
+    }
+    throw new GradleException("Cannot find version for plugin: $file")
+}
+
 def timestamp = now()
 
 ext.plugins_s3_url = 's3://www.nextflow.io/plugins'
@@ -33,10 +45,12 @@ subprojects {
         mavenCentral()
     }
 
+    version = verFromManifest(file('src/resources/META-INF/MANIFEST.MF'))
+    
     /*
      * Creates plugin zip and json meta file in plugin `build/libs` directory
      */
-    task plugin(type: Jar) {
+    task makeZip(type: Jar) {
         into('classes') {
             with jar
         }
@@ -51,8 +65,8 @@ subprojects {
         doLast {
             // create the meta file
             final zip = new File("$buildDir/libs/${project.name}-${project.version}.zip")
-            final meta = new File("$buildDir/libs/${project.name}-${project.version}.json")
-            meta.text = """\
+            final json = new File("$buildDir/libs/${project.name}-${project.version}.json")
+            json.text = """\
               {
                 "version": "${project.version}",
                 "date": "${timestamp}",
@@ -63,47 +77,44 @@ subprojects {
         }
     }
 
-    task assemblePlugin(type: Copy) {
-        from plugin
-        into "$buildDir/plugins"
-    }
-
-    task targetLibs(type: Sync) {
+    task copyPluginLibs(type: Sync) {
         from configurations.compile
         into 'build/target/libs'
     }
 
-    task uploadPluginZip(type: S3Upload, dependsOn: plugin) {
+    task copyPluginZip(type: Copy) {
+        from makeZip
+        into "$rootProject.buildDir/plugins"
+    }
+
+    task uploadPluginZip(type: S3Upload, dependsOn: makeZip) {
         // the provider mess is needed to lazy evaluate the `project.version` property
         //   https://docs.gradle.org/current/userguide/lazy_configuration.html#lazy_properties
         //   https://stackoverflow.com/questions/13198358/how-to-get-project-version-in-custom-gradle-plugin/13198744
         source = providers.provider { "$buildDir/libs/${project.name}-${project.version}.zip" }
         target = providers.provider { "$plugins_s3_url/${project.name}/${project.name}-${project.version}.zip" }
         publicRead = true
+        skipExisting = true
     }
 
-    task uploadPluginMeta(type: S3Upload, dependsOn: plugin) {
+    task uploadPluginMeta(type: S3Upload, dependsOn: makeZip) {
         source = providers.provider { "$buildDir/libs/${project.name}-${project.version}.json" }
         target = providers.provider { "$plugins_s3_url/${project.name}/${project.name}-${project.version}.json" }
-        skipExisting = true
         publicRead = true
+        skipExisting = true
     }
 
-    task uploadPlugin(dependsOn: [uploadPluginMeta, uploadPluginZip] ) {
-    }
+    task upload(dependsOn: [uploadPluginMeta, uploadPluginZip] ) { }
 }
 
-task uploadPlugins(dependsOn: [subprojects.uploadPlugin]) {
+task upload(dependsOn: [subprojects.upload]) {
 }
 
-
-task assemblePlugins(type: Copy, dependsOn: [subprojects.assemblePlugin, subprojects.targetLibs]) {
-}
-
-assemble.dependsOn subprojects.assemblePlugin, subprojects.targetLibs
+classes.dependsOn subprojects.copyPluginLibs
+assemble.dependsOn subprojects.copyPluginZip
 
 
-task publishRepositoryIndex( type: PluginsRepositoryPublisher ) {
+task publishIndex( type: PluginsRepositoryPublisher ) {
     repositoryUrl = plugins_s3_url
     indexUrl = plugins_index_url
     githubUser = 'pditommaso'

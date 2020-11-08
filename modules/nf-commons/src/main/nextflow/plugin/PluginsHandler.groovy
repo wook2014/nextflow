@@ -41,8 +41,8 @@ class PluginsHandler implements PluginStateListener {
     private DefaultPlugins defaultPlugins
 
     PluginsHandler() {
-        mode = env.get('NXF_PLUGINS_MODE') ?: 'prod'
-        root = Paths.get(env.get('NXF_PLUGINS_DIR') ?: ( mode=='dev' ? 'plugins' : '.plugins' ) )
+        mode = env.get('NXF_PLUGINS_MODE') ?: 'dev'
+        root = Paths.get(env.get('NXF_PLUGINS_DIR') ?: 'plugins')
         System.setProperty('pf4j.mode', mode)
         defaultPlugins = new DefaultPlugins()
     }

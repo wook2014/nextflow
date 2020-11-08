@@ -28,16 +28,19 @@ else
 mm = 
 endif 
 
-compile:
-	./gradlew compile exportClasspath
-	@echo "DONE `date`"
-
 clean:
 	rm -rf .nextflow*
 	rm -rf work 
 	rm -rf modules/nextflow/.nextflow*
 	rm -rf modules/nextflow/work
+	rm -rf build
+	rm -rf modules/*/build
+	rm -rf plugins/*/build
 	./gradlew clean
+
+compile:
+	./gradlew compile exportClasspath
+	@echo "DONE `date`"
 
 assemble:
 	./gradlew compile assemble
@@ -132,7 +135,7 @@ dockerPack:
 
 
 upload-plugins:
-	./gradlew plugins:uploadPlugins
+	./gradlew plugins:upload
 
 publish-index:
-	./gradlew plugins:publishRepositoryIndex
+	./gradlew plugins:publishIndex

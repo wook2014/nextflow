@@ -19,8 +19,6 @@ apply plugin: 'java-test-fixtures'
 apply plugin: 'idea'
 apply plugin: 'groovy'
 
-version = '0.1.0'
-
 sourceSets {
     main.java.srcDirs = []
     main.groovy.srcDirs = ['src/main']

@@ -193,10 +193,6 @@ task buildInfo { doLast {
             .eachDir { if(it.name.startsWith('nf-')) plugins << project(":plugins:${it.name}") }
 
     def meta = plugins .collect { "$it.name@$it.version" }
-    // add external ignite module
-    // https://github.com/nextflow-io/nf-ignite
-    meta << 'nf-ignite@1.1.0'
-
     file('modules/nextflow/src/main/resources/META-INF/plugins-info.txt').text = meta.join('\n')
 }}
 
@@ -206,7 +202,7 @@ task buildInfo { doLast {
  */
 task compile {
     dependsOn buildInfo
-    dependsOn allprojects.assemble
+    dependsOn allprojects.classes
 }
 
 def getRuntimeConfigs() {

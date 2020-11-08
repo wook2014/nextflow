@@ -58,7 +58,7 @@ class S3Upload extends AbstractS3Task {
 
         if (s3Client.doesObjectExist(bucket, targetKey)) {
             if (overwrite) {
-                copy(sourceFile, bucket, targetKey)
+                copy(sourceFile, bucket, targetKey, true)
             }
             else if( skipExisting ) {
                 logger.quiet("s3://${bucket}/${targetKey} exists! -- Skipping it.")
@@ -68,7 +68,7 @@ class S3Upload extends AbstractS3Task {
             }
         }
         else {
-            copy(sourceFile, bucket, targetKey)
+            copy(sourceFile, bucket, targetKey, false)
         }
     }
 
@@ -78,16 +78,16 @@ class S3Upload extends AbstractS3Task {
         return d1==d2
     }
 
-    void copy(File sourceFile, String bucket, String targetKey) {
+    void copy(File sourceFile, String bucket, String targetKey, boolean exists) {
         if( dryRun ) {
-            logger.quiet("S3 Would upload ${sourceFile} → s3://${bucket}/${targetKey} with overwrite")
+            logger.quiet("S3 Would upload ${sourceFile} → s3://${bucket}/${targetKey} ${exists ? '[would overwrite existing]' : ''}")
         }
         else {
             final req = new PutObjectRequest(bucket, targetKey, sourceFile)
             if( publicRead )
                 req.withCannedAcl(CannedAccessControlList.PublicRead)
 
-            logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey} with overwrite")
+            logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey} ${exists ? '[overwrote existing]': ''}")
             s3Client.putObject(req)
         }
     }
