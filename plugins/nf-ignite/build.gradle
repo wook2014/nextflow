@@ -40,3 +40,6 @@ dependencies {
     
 }
 
+test.onlyIf { JavaVersion.current() <= JavaVersion.VERSION_11 }
+
+
