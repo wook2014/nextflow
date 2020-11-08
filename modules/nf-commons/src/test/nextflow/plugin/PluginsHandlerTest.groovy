@@ -16,7 +16,7 @@ class PluginsHandlerTest extends Specification {
         def plugins = new PluginsHandler(folder)
 
         when:
-        plugins.setup([plugins: [ [id: 'nf-console', version: '0.1.0'] ]])
+        plugins.setup([plugins: [ 'nf-console@0.1.0' ]])
         then:
         folder.resolve('nf-console-0.1.0').exists()
 
@@ -27,21 +27,9 @@ class PluginsHandlerTest extends Specification {
 
     def 'should parse plugins config' () {
         given:
-        def CONFIG = '''
-        plugins = [ 
-            [id: 'foo', version: '1.2.3'],
-            [id: 'bar', version: '3.2.1'],
-         ]
-        '''
-        and:
         def handler = new PluginsHandler()
-
-        when:
-        def cfg = new ConfigSlurper().parse(CONFIG)
-        then:
-        cfg.plugins.size() == 2
-        cfg.plugins[0].id == 'foo'
-        cfg.plugins[0].version == '1.2.3'
+        and:
+        def cfg = [plugins: [ 'foo@1.2.3', 'bar@3.2.1' ]]
 
         when:
         final plugins = handler.parseConf(cfg)
