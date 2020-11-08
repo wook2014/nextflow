@@ -1,5 +1,4 @@
 /*
- * Copyright 2020, Seqera Labs
  * Copyright 2013-2019, Centre for Genomic Regulation (CRG)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +14,22 @@
  * limitations under the License.
  */
 
-rootProject.name = 'nextflow-prj'
+package nextflow.executor
+/**
+ * Declares the operations to stage task input and unstage task outputs
+ *
+ * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
+ */
+interface StagingStrategy {
 
-include 'nextflow'
-include 'nf-commons'
-include 'nf-console'
-include 'nf-httpfs'
+    /**
+     * Copy the input files to the task local working directory (scratch).
+     */
+    void stage()
 
-rootProject.children.each { prj ->
-    prj.projectDir = new File("$rootDir/modules/$prj.name")
+    /**
+     * Copy the output files from task local working directory (scratch) to the shared working directory.
+     */
+    void unstage()
+
 }
-
-include 'plugins'
-include 'plugins:nf-amazon'
-include 'plugins:nf-google'
-include 'plugins:nf-alibaba'
-include 'plugins:nf-ga4gh'
-include 'plugins:nf-tower'
-include 'plugins:nf-console'
-include 'plugins:nf-ignite'
-
