@@ -57,13 +57,13 @@ class S3Upload extends AbstractS3Task {
             throw new GradleException("S3 upload failed -- Source file does not exists: $sourceFile")
 
         if (s3Client.doesObjectExist(bucket, targetKey)) {
-            if (overwrite) {
-                copy(sourceFile, bucket, targetKey, true)
-            }
-            else if( skipExisting ) {
+            if( skipExisting && isSameContent(sourceFile, bucket, targetKey) ) {
                 logger.quiet("s3://${bucket}/${targetKey} exists! -- Skipping it.")
             }
-            else if( !isSameContent(sourceFile, bucket, targetKey)) {
+            else if (overwrite) {
+                copy(sourceFile, bucket, targetKey, true)
+            }
+            else {
                 throw new GradleException("s3://${bucket}/${targetKey} exists! -- Refuse to owerwrite it.")
             }
         }
@@ -72,10 +72,15 @@ class S3Upload extends AbstractS3Task {
         }
     }
 
+
     boolean isSameContent(File sourceFile, String bucket, String targetKey) {
-        final d1= DigestUtils.sha512(sourceFile.bytes)
-        final d2= DigestUtils.sha512(s3Client.getObject(bucket, targetKey).getObjectContent())
-        return d1==d2
+        final d1 = sourceFile
+                .withInputStream { InputStream it -> DigestUtils.sha512Hex(it) }
+        final d2 = s3Client
+                .getObject(bucket, targetKey)
+                .getObjectContent()
+                .withStream { InputStream it -> DigestUtils.sha512Hex(it) }
+        return d1 == d2
     }
 
     void copy(File sourceFile, String bucket, String targetKey, boolean exists) {
@@ -87,7 +92,7 @@ class S3Upload extends AbstractS3Task {
             if( publicRead )
                 req.withCannedAcl(CannedAccessControlList.PublicRead)
 
-            logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey} ${exists ? '[overwrote existing]': ''}")
+            logger.quiet("S3 Upload ${sourceFile} → s3://${bucket}/${targetKey} ${exists ? '[overwrite existing]': ''}")
             s3Client.putObject(req)
         }
     }

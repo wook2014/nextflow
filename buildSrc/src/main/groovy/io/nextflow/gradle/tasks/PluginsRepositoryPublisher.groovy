@@ -69,6 +69,8 @@ class PluginsRepositoryPublisher extends DefaultTask {
      */
     @Input @Optional String region
 
+    @Input @Optional Boolean overwrite
+
     private String bucket
     private String prefix
 
@@ -111,20 +113,26 @@ class PluginsRepositoryPublisher extends DefaultTask {
             else {
                 for (PluginRelease rel : pluginReleases) {
                     // check if this version already exist in the index
-                    final indexRel = indexEntry.releases.find { PluginRelease it -> it.version = rel.version }
+                    final index = indexEntry.releases.findIndexOf { PluginRelease it -> it.version == rel.version }
+                    final indexRel = index!=-1 ? indexEntry.releases[index] : null as PluginRelease
+
                     // if not exists, add to the index
                     if( !indexRel ) {
                         indexEntry.releases << rel
                     }
                     // otherwise verify the checksum matches
                     else if( indexRel.sha512sum != rel.sha512sum ) {
-                        def msg = "Plugin $pluginId@${rel.version} invalid checksum:\n"
-                        msg += "- index sha512sum: $indexRel.sha512sum\n"
-                        msg += "- repo sha512sum : $rel.sha512sum\n"
-                        msg += "- repo url       : $rel.url"
-                        throw new GradleException(msg)
+                        if( overwrite ) {
+                            indexEntry.releases[index] = rel
+                        }
+                        else {
+                            def msg = "Plugin $pluginId@${rel.version} invalid checksum:\n"
+                            msg += "- index sha512sum: $indexRel.sha512sum\n"
+                            msg += "- repo sha512sum : $rel.sha512sum\n"
+                            msg += "- repo url       : $rel.url"
+                            throw new GradleException(msg)
+                        }
                     }
-
                 }
             }
         }
@@ -135,9 +143,9 @@ class PluginsRepositoryPublisher extends DefaultTask {
                 .toJson(mainIndex)
     }
 
-    List<PluginMeta> parseMainIndex() {
+    List<PluginMeta> parseMainIndex(GithubClient github, String path) {
         // get main repo index
-        final indexJson = new URL(indexUrl).text
+        final indexJson = github.getContent(path)
         final type = new TypeToken<ArrayList<PluginMeta>>(){}.getType()
         return new Gson().fromJson(indexJson, type)
     }
@@ -195,18 +203,7 @@ class PluginsRepositoryPublisher extends DefaultTask {
         this.bucket = urlTokens.bucket
         this.prefix = urlTokens.key
 
-        // list plugins in the nextflow s3 releases
-        logger.quiet("Fetching plugins from $repositoryUrl")
-        final pluginsToPublish = listPlugins()
-
-        // fetch the plugins public index
-        logger.quiet("Parsing current index $indexUrl")
-        def mainIndex = parseMainIndex()
-
-        // merge indexes
-        logger.quiet("Merging index")
-        final result = mergeIndex(mainIndex, pluginsToPublish)
-
+        // parse indexUrl 
         final gitUrl = new URL(indexUrl)
         final tokns = gitUrl.path.tokenize('/')
         final githubOrg = tokns[0]
@@ -214,8 +211,7 @@ class PluginsRepositoryPublisher extends DefaultTask {
         final githubBranch = tokns[2]
         final targetFile = tokns[3]
 
-        // push to github
-        logger.quiet("Publish merged index to $indexUrl")
+        // init github client
         final github = new GithubClient()
         github.userName = githubUser
         github.authToken = githubToken
@@ -223,6 +219,21 @@ class PluginsRepositoryPublisher extends DefaultTask {
         github.repo = githubRepo
         github.owner = githubOrg
         github.email = githubEmail
+
+        // list plugins in the nextflow s3 releases
+        logger.quiet("Fetching plugins from $repositoryUrl")
+        final pluginsToPublish = listPlugins()
+
+        // fetch the plugins public index
+        logger.quiet("Parsing current index $indexUrl")
+        def mainIndex = parseMainIndex(github, targetFile)
+
+        // merge indexes
+        logger.quiet("Merging index")
+        final result = mergeIndex(mainIndex, pluginsToPublish)
+
+        // push to github
+        logger.quiet("Publish merged index to $indexUrl")
 
         github.pushChange(targetFile, result.toString() + '\n', "Nextflow plugins update")
     }

@@ -149,6 +149,12 @@ class GithubClient {
         updateRef(commitId)
     }
 
+    String getContent(String path) {
+        def resp = sendHttpMessage("https://api.github.com/repos/$owner/$repo/contents/$path", null, 'GET')
+        def bytes = resp.content?.toString()?.decodeBase64()
+        return bytes != null ? new String(bytes) : null
+    }
+
     static void main(String... args) {
         def github = new GithubClient(
                 authToken: System.getenv('GITHUB_TOKEN'),
