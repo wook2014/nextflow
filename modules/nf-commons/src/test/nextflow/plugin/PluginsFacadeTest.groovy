@@ -8,12 +8,12 @@ import spock.lang.Specification
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-class PluginsHandlerTest extends Specification {
+class PluginsFacadeTest extends Specification {
 
     def 'should setup plugins' () {
         given:
         def folder = Files.createTempDirectory('test')
-        def plugins = new PluginsHandler(folder)
+        def plugins = new PluginsFacade(folder)
 
         when:
         plugins.setup([plugins: [ 'nf-console@0.1.0' ]])
@@ -27,7 +27,7 @@ class PluginsHandlerTest extends Specification {
 
     def 'should parse plugins config' () {
         given:
-        def handler = new PluginsHandler()
+        def handler = new PluginsFacade()
         and:
         def cfg = [plugins: [ 'foo@1.2.3', 'bar@3.2.1' ]]
 
@@ -52,7 +52,7 @@ class PluginsHandlerTest extends Specification {
                 'nf-tower': new PluginSpec('nf-tower', '0.1.0')
         ])
         and:
-        def handler = new PluginsHandler(defaultPlugins: defaults, env: [:])
+        def handler = new PluginsFacade(defaultPlugins: defaults, env: [:])
 
         when:
         def result = handler.pluginsRequirement([:])
@@ -60,13 +60,13 @@ class PluginsHandlerTest extends Specification {
         result == []
 
         when:
-        handler = new PluginsHandler(defaultPlugins: defaults, env: [NXF_PLUGINS_DEFAULT:'true'])
+        handler = new PluginsFacade(defaultPlugins: defaults, env: [NXF_PLUGINS_DEFAULT:'true'])
         result = handler.pluginsRequirement([:])
         then:
         result == [ new PluginSpec('nf-amazon', '0.1.0')]
 
         when:
-        handler = new PluginsHandler(defaultPlugins: defaults, env: [NXF_PLUGINS_DEFAULT:'true'])
+        handler = new PluginsFacade(defaultPlugins: defaults, env: [NXF_PLUGINS_DEFAULT:'true'])
         result = handler.pluginsRequirement([tower:[enabled:true]])
         then:
         result == [
@@ -83,7 +83,7 @@ class PluginsHandlerTest extends Specification {
                 'nf-tower': new PluginSpec('nf-tower', '0.1.0')
         ])
         and:
-        def handler = new PluginsHandler(defaultPlugins: defaults)
+        def handler = new PluginsFacade(defaultPlugins: defaults)
 
         when:
         def plugins = handler.defaultPluginsConf([process:[executor: 'awsbatch']])

@@ -2,25 +2,16 @@ package nextflow.plugin
 
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.function.BooleanSupplier
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import nextflow.extension.Bolts
 import nextflow.extension.FilesEx
-import org.pf4j.CompoundPluginLoader
-import org.pf4j.DefaultPluginLoader
-import org.pf4j.DefaultPluginManager
-import org.pf4j.JarPluginLoader
-import org.pf4j.ManifestPluginDescriptorFinder
-import org.pf4j.PluginDescriptorFinder
-import org.pf4j.PluginLoader
+import nextflow.util.CacheHelper
 import org.pf4j.PluginManager
 import org.pf4j.PluginStateEvent
 import org.pf4j.PluginStateListener
-import org.pf4j.update.DefaultUpdateRepository
 import org.pf4j.update.UpdateManager
-import org.pf4j.update.UpdateRepository
 /**
  * Manage plugins installation and configuration
  * 
@@ -28,9 +19,7 @@ import org.pf4j.update.UpdateRepository
  */
 @Slf4j
 @CompileStatic
-class PluginsHandler implements PluginStateListener {
-
-    private static final String DEFAULT_PLUGINS_REPO = 'https://raw.githubusercontent.com/nextflow-io/plugins/main/plugins.json'
+class PluginsFacade implements PluginStateListener {
 
     private Map<String,String> env = new HashMap<>(System.getenv())
 
@@ -40,52 +29,46 @@ class PluginsHandler implements PluginStateListener {
     private PluginManager manager
     private DefaultPlugins defaultPlugins
 
-    PluginsHandler() {
+    PluginsFacade() {
         mode = env.get('NXF_PLUGINS_MODE') ?: 'dev'
         root = Paths.get(env.get('NXF_PLUGINS_DIR') ?: 'plugins')
         System.setProperty('pf4j.mode', mode)
         defaultPlugins = new DefaultPlugins()
     }
 
-    PluginsHandler(Path root, String mode='prod') {
+    PluginsFacade(Path root, String mode='prod') {
         this.mode = mode
         this.root = root
         System.setProperty('pf4j.mode', mode)
         defaultPlugins = new DefaultPlugins()
     }
 
-    protected void init(Path root) {
-        this.manager = createManager(root)
-        this.updater = createUpdater(manager)
+    protected void init(Path root, List<PluginSpec> specs) {
+        this.manager = createManager(root, specs)
+        this.updater = createUpdater(root, manager)
     }
 
-    protected PluginManager createManager(Path root) {
-        final result = new DefaultPluginManager(root) {
-            @Override
-            protected PluginDescriptorFinder createPluginDescriptorFinder() {
-                return new ManifestPluginDescriptorFinder()
-            }
+    protected Path localRoot(List<PluginSpec> specs) {
+        if( !specs )
+            return null
+        final unique = CacheHelper.hasher(specs).hash().toString()
+        final localRoot = Paths.get('.plugins',unique)
+        log.debug "Plugins local root: $localRoot"
+        FilesEx.mkdirs(localRoot)
+        return localRoot
+    }
 
-            @Override
-            protected PluginLoader createPluginLoader() {
-                return new CompoundPluginLoader()
-                        .add(new GroovyDevPluginLoader(this), this::isDevelopment as BooleanSupplier)
-                        .add(new JarPluginLoader(this), this::isNotDevelopment as BooleanSupplier)
-                        .add(new DefaultPluginLoader(this), this::isNotDevelopment as BooleanSupplier);
-            }
-        }
-
+    protected PluginManager createManager(Path root, List<PluginSpec> specs) {
+        final result = mode!='dev' ? new LocalPluginManager( localRoot(specs) ) : new DevPluginManager(root)
         result.addPluginStateListener(this)
         return result
     }
 
-
-    protected UpdateManager createUpdater(PluginManager manager) {
-        final repos = new ArrayList<UpdateRepository>()
-        repos << new DefaultUpdateRepository('nextflow.io', new URL(DEFAULT_PLUGINS_REPO))
-        new UpdateManager(manager, repos)
+    protected UpdateManager createUpdater(Path root, PluginManager manager) {
+        return ( mode!='dev'
+                ? new PluginUpdater(manager, root, new URL(Plugins.DEFAULT_PLUGINS_REPO))
+                : new DevPluginUpdater(manager) )
     }
-
 
     @Override
     void pluginStateChanged(PluginStateEvent ev) {
@@ -106,11 +89,10 @@ class PluginsHandler implements PluginStateListener {
             // make sure plugins dir exists
             if( !FilesEx.mkdirs(root) )
                 throw new IOException("Unable to create plugins dir: $root")
-            // create the plugin manager
-            init(root)
-            // load the plugins
+            final specs = pluginsRequirement(config)
+            init(root, specs)
             manager.loadPlugins()
-            start(config)
+            start(specs)
         }
     }
 
@@ -147,8 +129,7 @@ class PluginsHandler implements PluginStateListener {
         }
     }
 
-    void start(Map config) {
-        def specs = pluginsRequirement(config)
+    void start(List<PluginSpec> specs) {
         for( PluginSpec it : specs ) {
             start(it)
         }

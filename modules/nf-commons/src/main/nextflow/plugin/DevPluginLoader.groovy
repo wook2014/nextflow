@@ -13,10 +13,10 @@ import org.pf4j.PluginManager
  */
 @Slf4j
 @CompileStatic
-class GroovyDevPluginLoader extends BasePluginLoader {
+class DevPluginLoader extends BasePluginLoader {
 
-    GroovyDevPluginLoader(PluginManager pluginManager) {
-        super(pluginManager, new GroovyDevPluginClasspath())
+    DevPluginLoader(PluginManager pluginManager) {
+        super(pluginManager, new DevPluginClasspath())
     }
 
 }

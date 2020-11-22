@@ -11,11 +11,11 @@ import org.pf4j.PluginClasspath;
  */
 @Slf4j
 @CompileStatic
-class GroovyDevPluginClasspath extends PluginClasspath {
+class DevPluginClasspath extends PluginClasspath {
 
     private boolean logged
 
-    GroovyDevPluginClasspath() {
+    DevPluginClasspath() {
         // the path where classes are resources should be found in the dev environment
         // for each plugin project directory
         addClassesDirectories("build/classes/groovy/main", "build/resources/main", 'build/classes/main')
