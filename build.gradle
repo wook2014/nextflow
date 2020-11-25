@@ -50,7 +50,7 @@ def projects(String...args) {
 }
 
 group = 'io.nextflow'
-version = new File('VERSION').text.trim()
+version = rootProject.file('VERSION').text.trim()
 
 allprojects {
     apply plugin: 'java'
@@ -248,7 +248,7 @@ ext.coreProjects = projects( ':nextflow', ':nf-commons', ':nf-httpfs' )
 
 configure(coreProjects) {
     group = 'io.nextflow'
-    version = new File('VERSION').text.trim()
+    version = rootProject.file('VERSION').text.trim()
 }
 
 /*

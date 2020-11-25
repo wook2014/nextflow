@@ -4,6 +4,8 @@ package nextflow.plugin
 import org.pf4j.PluginManager
 import org.pf4j.update.UpdateManager
 /**
+ * Updater disabling plugin installation and update when
+ * running the plugin manager in dev mode
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */

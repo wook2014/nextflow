@@ -8,6 +8,8 @@ import groovy.util.logging.Slf4j
 import org.pf4j.DefaultPluginRepository
 
 /**
+ * Extends the default plugin repository to avoid the deletion
+ * of the plugin directory and delete instead the local symbolic link
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
@@ -23,21 +25,21 @@ class LocalPluginRepository extends DefaultPluginRepository {
      * Override {@link DefaultPluginRepository#deletePluginPath(java.nio.file.Path)}
      * to prevent deleting the real plugin directory
      *
-     *  @param pluginPath
+     * @param pluginPath
      * @return
      */
     @Override
     boolean deletePluginPath(Path pluginPath) {
-        if(Files.isSymbolicLink(pluginPath)) {
+        if(Files.isSymbolicLink(pluginPath))
             try {
                 Files.delete(pluginPath)
                 return true
             }
             catch (Exception e) {
                 log.debug "Unable to delete plugin path: $pluginPath"
+                return false
             }
-        }
-
-        return super.deletePluginPath(pluginPath)
+        else
+            return super.deletePluginPath(pluginPath)
     }
 }

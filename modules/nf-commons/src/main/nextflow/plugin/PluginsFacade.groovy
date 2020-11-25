@@ -21,6 +21,8 @@ import org.pf4j.update.UpdateManager
 @CompileStatic
 class PluginsFacade implements PluginStateListener {
 
+    private Path PLUGINS_LOCAL_ROOT = Paths.get('.nextflow/plr')
+
     private Map<String,String> env = new HashMap<>(System.getenv())
 
     private String mode
@@ -52,7 +54,7 @@ class PluginsFacade implements PluginStateListener {
         if( !specs )
             return null
         final unique = CacheHelper.hasher(specs).hash().toString()
-        final localRoot = Paths.get('.plugins',unique)
+        final localRoot = PLUGINS_LOCAL_ROOT.resolve(unique)
         log.debug "Plugins local root: $localRoot"
         FilesEx.mkdirs(localRoot)
         return localRoot
