@@ -155,23 +155,24 @@ class OpCall implements Callable {
             return invoke1('set', [source, args[0]] as Object[])
         }
 
-        final DataflowReadChannel source = read0(source)
-        final result = invoke0(source, read1(args))
+        final DataflowReadChannel left = read0(source)
+        final right = read1(args)
+        final result = invoke0(left, right)
         if( !ignoreDagNode )
-            addGraphNode(result)
+            addGraphNode(left, right, result)
         return result
     }
 
-    protected void addGraphNode(Object result) {
+    protected void addGraphNode(DataflowReadChannel left, Object[] right, Object result) {
         // infer inputs
-        inputs.add( source )
-        inputs.addAll( getInputChannels() )
+        inputs.add( left )
+        inputs.addAll( getInputChannels(right) )
         outputs.addAll( getOutputChannels(result))
 
         NodeMarker.addOperatorNode(methodName, inputs, outputs)
     }
 
-    protected List getInputChannels() {
+    protected List getInputChannels(Object[] args) {
         def result = new ArrayList(5)
 
         if( declaresParamType(DataflowReadChannel, method) ) {
